@@ -30,3 +30,12 @@ def test__init__():
     assert mod.generate_chunk == generate_chunk
     assert mod.stft_window_size == stft_window_size
     assert mod.stft_hop_length == stft_hop_length
+
+
+def test_set_target_sound_files():
+    default = env.PynkTrombone(target_sound_files)
+
+    file_paths = ["aaa", "bbb", "ccc"]
+    assert default.target_sound_files == target_sound_files
+    default.set_target_sound_files(file_paths)
+    assert default.target_sound_files == file_paths
