@@ -1,8 +1,15 @@
 import glob
 
+from gym import spaces
+
 from pynktrombonegym import env
 
 target_sound_files = glob.glob("data/sample_target_sounds/*.wav")
+
+
+def assert_space(space: spaces.Space, currect_space: spaces.Space):
+    assert space == currect_space
+    assert space.dtype == currect_space.dtype
 
 
 def test__init__():
@@ -39,3 +46,18 @@ def test_set_target_sound_files():
     assert default.target_sound_files == target_sound_files
     default.set_target_sound_files(file_paths)
     assert default.target_sound_files == file_paths
+
+
+def test_define_action_space():
+    default = env.PynkTrombone(target_sound_files)
+    default.define_action_space()
+
+    acts = default.action_space
+    assert_space(acts["pitch_shift"], spaces.Box(-1.0, 1.0))
+    assert_space(acts["tenseness"], spaces.Box(0.0, 1.0))
+    assert_space(acts["trachea"], spaces.Box(0, 3.5))
+    assert_space(acts["epiglottis"], spaces.Box(0, 3.5))
+    assert_space(acts["velum"], spaces.Box(0, 3.5))
+    assert_space(acts["tongue_index"], spaces.Box(12, 40, dtype=int))
+    assert_space(acts["tongue_diameter"], spaces.Box(0, 3.5))
+    assert_space(acts["lips"], spaces.Box(0, 1.5))
