@@ -1,0 +1,48 @@
+from typing import Any, Iterable
+
+import gym
+from gym import spaces
+from pynktrombone import Voc
+
+
+class PynkTrombone(gym.Env):
+    r"""The vocal tract environment for speech generation.
+
+    The main API methods that users of this class need to know are:
+
+    - :meth:`__init__`  - Constructor of this enviroment.
+
+
+    And set the following attributes:
+
+    """
+
+    def __init__(
+        self,
+        target_sound_files: Iterable[str],
+        sample_rate: int = 44100,
+        default_frequency: float = 400.0,
+        generate_chunk: int = 512,
+        stft_window_size: int = 1024,
+        stft_hop_length: int = None,
+    ):
+        """Contructs environment. Setup `Voc`, deine spaces, and reset environment.
+
+        Args:
+            target_sound_files (Iterable[str]): Target sounds to imitate by vocal tract model.
+            sample_rate (int): Resolution of sound wave.
+                Target sounds and generation wave frequency are set to this.
+            default_frequency (float): Base of glottis frequency.
+            generate_chunk (int): Length generated in 1 step.
+            stft_window_size (int): Window size of stft.
+            stft_hop_length (int): Hop length of stft.
+        """
+
+        self.target_sound_files = target_sound_files
+        self.sample_rate = sample_rate
+        self.default_frequency = default_frequency
+        self.generate_chunk = generate_chunk
+        self.stft_window_size = stft_window_size
+        if stft_hop_length is None:
+            stft_hop_length = int(stft_window_size / 4)
+        self.stft_hop_length = stft_hop_length
