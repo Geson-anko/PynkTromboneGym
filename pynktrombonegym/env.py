@@ -53,3 +53,31 @@ class PynkTrombone(gym.Env):
             file_paths (Iterable[str]): Paths to target sound files.
         """
         self.target_sound_files = file_paths
+
+    action_space: spaces.Dict
+
+    def define_action_space(self) -> None:
+        """Defines action space of this environment.
+
+        Action space:
+            pitch_shift,
+            tenseness,
+            traches,
+            epiglottis,
+            velum,
+            tongue_index,
+            tongue_diameter,
+            lips
+        """
+        self.action_space = spaces.Dict(
+            {
+                "pitch_shift": spaces.Box(-1.0, 1.0),
+                "tenseness": spaces.Box(0.0, 1.0),
+                "trachea": spaces.Box(0, 3.5),
+                "epiglottis": spaces.Box(0, 3.5),
+                "velum": spaces.Box(0, 3.5),
+                "tongue_index": spaces.Box(12, 40, dtype=int),
+                "tongue_diameter": spaces.Box(0, 3.5),
+                "lips": spaces.Box(0, 1.5),
+            }
+        )
