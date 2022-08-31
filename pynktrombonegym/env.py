@@ -46,3 +46,10 @@ class PynkTrombone(gym.Env):
         if stft_hop_length is None:
             stft_hop_length = int(stft_window_size / 4)
         self.stft_hop_length = stft_hop_length
+
+    def set_target_sound_files(self, file_paths: Iterable[str]) -> None:
+        """Set `file_paths` to `self.target_sound_files`
+        Args:
+            file_paths (Iterable[str]): Paths to target sound files.
+        """
+        self.target_sound_files = file_paths
