@@ -21,6 +21,21 @@ def calc_rfft_channel_num(n_fft: int) -> int:
     return int(n_fft / 2) + 1
 
 
+def calc_target_sound_spectrogram_length(chunk: int, n_fft: int, hop_len: int) -> int:
+    """Calculate output length of target sound spectrogram.
+
+    Args:
+        chunk (int): Generation length in one step.
+        n_fft (int): wave length of fft.
+        hop_len (int): Step length of stft.
+
+    Returns:
+        calc_target_sound_spectrogram_length (int): Output time steps of stft.
+    """
+
+    return math.ceil(chunk / hop_len) + 1
+
+
 def stft(wave: np.ndarray, window_size: int, hop_len: int, padding_mode: padT = "reflect") -> np.ndarray:
     """Compute short time fourier transform
     Args:
