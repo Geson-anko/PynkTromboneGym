@@ -90,7 +90,7 @@ class PynkTrombone(gym.Env):
 
     def define_observation_space(self):
         """Defines observation space of this enviroment.
-        
+
         Observation space:
             target_sound,
             previous_generated_sound,
@@ -117,3 +117,12 @@ class PynkTrombone(gym.Env):
                 "nose_diameters": spaces.Box(0.0, 5.0, (self.voc.nose_size,)),
             }
         )
+
+    def define_reward_range(self) -> None:
+        """Define reward range of this environment.
+        Reward is computed by measuring MSE between
+        target_sound and generated_sound, and times -1.
+
+        Range: [-inf, 0]
+        """
+        self.reward_range = (-float("inf"), 0.0)
