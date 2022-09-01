@@ -39,6 +39,37 @@ def test__init__():
     assert mod.stft_window_size == stft_window_size
     assert mod.stft_hop_length == stft_hop_length
 
+    # test define spaces
+    rr = default.reward_range
+    obss = default.observation_space
+    acts = default.action_space
+
+    assert type(rr) is tuple
+    assert type(obss) is spaces.Dict
+    assert type(acts) is spaces.Dict
+
+    obsk = list(obss.keys())
+    actk = list(acts.keys())
+
+    assert rr == (-float("inf"), 0.0)
+
+    assert "target_sound" in obsk
+    assert "previous_generated_sound" in obsk
+    assert "current_frequency" in obsk
+    assert "current_pitch_shift" in obsk
+    assert "tenseness" in obsk
+    assert "current_tract_diameters" in obsk
+    assert "nose_diameters" in obsk
+
+    assert "pitch_shift" in actk
+    assert "tenseness" in actk
+    assert "trachea" in actk
+    assert "epiglottis" in actk
+    assert "velum" in actk
+    assert "tongue_index" in actk
+    assert "tongue_diameter" in actk
+    assert "lips" in actk
+
 
 def test_set_target_sound_files():
     default = env.PynkTrombone(target_sound_files)
