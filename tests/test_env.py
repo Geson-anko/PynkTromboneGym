@@ -83,3 +83,10 @@ def test_define_observation_space():
     assert_space(obs["tenseness"], spaces.Box(0.0, 1.0))
     assert_space(obs["current_tract_diameters"], spaces.Box(0.0, 5.0, (default.voc.tract_size,)))
     assert_space(obs["nose_diameters"], spaces.Box(0.0, 5.0, (default.voc.nose_size,)))
+
+
+def test_define_reward_range():
+    default = env.PynkTrombone(target_sound_files)
+    default.define_reward_range()
+
+    assert default.reward_range == (-float("inf"), 0.0)
