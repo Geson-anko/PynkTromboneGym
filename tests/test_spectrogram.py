@@ -38,8 +38,10 @@ def test_load_sound_file():
     w1 = f(s1, 44100)
     assert len(w1.shape) == 1
     assert np.abs(w1).max() <= 1
+    assert w1.dtype == np.float32
 
     s2 = target_sound_files[1]
     w2 = f(s2, 22050)
     assert len(w2.shape) == 1
     assert np.abs(w2).max() <= 1
+    assert w2.dtype == np.float32
