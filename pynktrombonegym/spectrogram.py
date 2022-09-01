@@ -1,8 +1,9 @@
 """Tools for spectrogram operatings."""
 import math
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
+from pydub import AudioSegment
 
 padT = Literal[
     "constant", "edge", "linear_ramp", "maximum", "mean", "median", "minimum", "reflect", "symmetric", "wrap", "empty"
@@ -64,3 +65,29 @@ def stft(wave: np.ndarray, window_size: int, hop_len: int, padding_mode: padT = 
     Z = np.fft.rfft(waves, axis=1)
 
     return Z
+
+
+def load_sound_file(file_path: Any, sample_rate: int) -> np.ndarray:
+    """Load sound wave from file.
+    Fix sound channel to 1, sample_rate, and
+    normalize range to [-1,1].
+
+    Args:
+        file_path (str): Path to the sound file.
+
+    Returns:
+        waveform (ndarray): Range[-1,1]
+            Waveform of loaded sound.
+    """
+
+    sound: AudioSegment = AudioSegment.from_file(file_path)
+
+    if sound.frame_rate != sample_rate:
+        sound = sound.set_frame_rate(sample_rate)
+    if sound.channels != 1:
+        sound = sound.set_channels(1)
+
+    max_value = 2 ** (8 * sound.sample_width)
+    wave = np.array(sound.get_array_of_samples()).reshape(-1) / max_value
+    wave = wave.astype(np.float32)
+    return wave
