@@ -89,7 +89,17 @@ class PynkTrombone(gym.Env):
     observation_space: spaces.Dict
 
     def define_observation_space(self):
-        """Defines observation space of this enviroment."""
+        """Defines observation space of this enviroment.
+        
+        Observation space:
+            target_sound,
+            previous_generated_sound,
+            current_frequency,
+            current_pitch_shift,
+            tenseness,
+            current_tract_diameters,
+            nose_diameters,
+        """
 
         spct_shape = (
             spct.calc_rfft_channel_num(self.stft_window_size),
