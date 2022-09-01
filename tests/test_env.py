@@ -3,6 +3,7 @@ import glob
 from gym import spaces
 
 from pynktrombonegym import env
+from pynktrombonegym import spectrogram as spct
 
 target_sound_files = glob.glob("data/sample_target_sounds/*.wav")
 
@@ -61,3 +62,24 @@ def test_define_action_space():
     assert_space(acts["tongue_index"], spaces.Box(12, 40, dtype=int))
     assert_space(acts["tongue_diameter"], spaces.Box(0, 3.5))
     assert_space(acts["lips"], spaces.Box(0, 1.5))
+
+
+def test_define_observation_space():
+    default = env.PynkTrombone(target_sound_files)
+    default.define_observation_space()
+    obs = default.observation_space
+
+    spct_shape = (
+        spct.calc_rfft_channel_num(default.stft_window_size),
+        spct.calc_target_sound_spectrogram_length(
+            default.generate_chunk, default.stft_window_size, default.stft_hop_length
+        ),
+    )
+
+    assert_space(obs["target_sound"], spaces.Box(0, float("inf"), spct_shape))
+    assert_space(obs["previous_generated_sound"], spaces.Box(0, float("inf"), spct_shape))
+    assert_space(obs["current_frequency"], spaces.Box(0, default.sample_rate // 2))
+    assert_space(obs["current_pitch_shift"], spaces.Box(-1.0, 1.0))
+    assert_space(obs["tenseness"], spaces.Box(0.0, 1.0))
+    assert_space(obs["current_tract_diameters"], spaces.Box(0.0, 5.0, (default.voc.tract_size,)))
+    assert_space(obs["nose_diameters"], spaces.Box(0.0, 5.0, (default.voc.nose_size,)))
