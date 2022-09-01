@@ -51,6 +51,10 @@ class PynkTrombone(gym.Env):
 
         self.voc = Voc(sample_rate, generate_chunk, default_freq=default_frequency)
 
+        self.define_action_space()
+        self.define_observation_space()
+        self.define_reward_range()
+
     def set_target_sound_files(self, file_paths: Iterable[str]) -> None:
         """Set `file_paths` to `self.target_sound_files`
         Args:
