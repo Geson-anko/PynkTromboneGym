@@ -4,6 +4,8 @@ import gym
 from gym import spaces
 from pynktrombone import Voc
 
+from . import spectrogram as spct
+
 
 class PynkTrombone(gym.Env):
     r"""The vocal tract environment for speech generation.
@@ -47,6 +49,8 @@ class PynkTrombone(gym.Env):
             stft_hop_length = int(stft_window_size / 4)
         self.stft_hop_length = stft_hop_length
 
+        self.voc = Voc(sample_rate, generate_chunk, default_freq=default_frequency)
+
     def set_target_sound_files(self, file_paths: Iterable[str]) -> None:
         """Set `file_paths` to `self.target_sound_files`
         Args:
@@ -79,5 +83,27 @@ class PynkTrombone(gym.Env):
                 "tongue_index": spaces.Box(12, 40, dtype=int),
                 "tongue_diameter": spaces.Box(0, 3.5),
                 "lips": spaces.Box(0, 1.5),
+            }
+        )
+
+    observation_space: spaces.Dict
+
+    def define_observation_space(self):
+        """Defines observation space of this enviroment."""
+
+        spct_shape = (
+            spct.calc_rfft_channel_num(self.stft_window_size),
+            spct.calc_target_sound_spectrogram_length(self.generate_chunk, self.stft_window_size, self.stft_hop_length),
+        )
+
+        self.observation_space = spaces.Dict(
+            {
+                "target_sound": spaces.Box(0, float("inf"), spct_shape),
+                "previous_generated_sound": spaces.Box(0, float("inf"), spct_shape),
+                "current_frequency": spaces.Box(0, self.sample_rate // 2),
+                "current_pitch_shift": spaces.Box(-1.0, 1.0),
+                "tenseness": spaces.Box(0.0, 1.0),
+                "current_tract_diameters": spaces.Box(0.0, 5.0, (self.voc.tract_size,)),
+                "nose_diameters": spaces.Box(0.0, 5.0, (self.voc.nose_size,)),
             }
         )
