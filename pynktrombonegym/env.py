@@ -88,7 +88,7 @@ class PynkTrombone(gym.Env):
 
     observation_space: spaces.Dict
 
-    def define_observation_space(self):
+    def define_observation_space(self) -> None:
         """Defines observation space of this enviroment.
 
         Observation space:
