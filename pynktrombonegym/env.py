@@ -1,6 +1,7 @@
-from typing import Any, Iterable
+from typing import Sequence
 
 import gym
+import numpy as np
 from gym import spaces
 from pynktrombone import Voc
 
@@ -21,7 +22,7 @@ class PynkTrombone(gym.Env):
 
     def __init__(
         self,
-        target_sound_files: Iterable[str],
+        target_sound_files: Sequence[str],
         sample_rate: int = 44100,
         default_frequency: float = 400.0,
         generate_chunk: int = 512,
@@ -31,7 +32,7 @@ class PynkTrombone(gym.Env):
         """Contructs environment. Setup `Voc`, deine spaces, and reset environment.
 
         Args:
-            target_sound_files (Iterable[str]): Target sounds to imitate by vocal tract model.
+            target_sound_files (Sequence[str]): Target sounds to imitate by vocal tract model.
             sample_rate (int): Resolution of sound wave.
                 Target sounds and generation wave frequency are set to this.
             default_frequency (float): Base of glottis frequency.
@@ -55,7 +56,7 @@ class PynkTrombone(gym.Env):
         self.define_observation_space()
         self.define_reward_range()
 
-    def set_target_sound_files(self, file_paths: Iterable[str]) -> None:
+    def set_target_sound_files(self, file_paths: Sequence[str]) -> None:
         """Set `file_paths` to `self.target_sound_files`
         Args:
             file_paths (Iterable[str]): Paths to target sound files.
@@ -130,3 +131,14 @@ class PynkTrombone(gym.Env):
         Range: [-inf, 0]
         """
         self.reward_range = (-float("inf"), 0.0)
+
+    def load_sound_wave_randomly(self) -> np.ndarray:
+        """Load sound file randomly.
+
+        Return:
+            waveform (ndarray): 1d numpy array, dtype is float32,
+        """
+
+        file_index = np.random.randint(0, len(self.target_sound_files))
+        wave = spct.load_sound_file(self.target_sound_files[file_index], self.sample_rate)
+        return wave

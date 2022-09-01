@@ -1,5 +1,6 @@
 import glob
 
+import numpy as np
 from gym import spaces
 
 from pynktrombonegym import env
@@ -121,3 +122,11 @@ def test_define_reward_range():
     default.define_reward_range()
 
     assert default.reward_range == (-float("inf"), 0.0)
+
+
+def test_load_sound_wave_randomly():
+    default = env.PynkTrombone(target_sound_files)
+    wave = default.load_sound_wave_randomly()
+
+    assert type(wave) is np.ndarray
+    assert len(wave.shape) == 1
