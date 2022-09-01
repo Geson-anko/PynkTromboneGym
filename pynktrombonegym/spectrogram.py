@@ -9,24 +9,24 @@ padT = Literal[
 ]
 
 
-def calc_rfft_channel_num(n_fft: int) -> int:
-    """calculate output channel number of rfft operation at `n_fft`.
+def calc_rfft_channel_num(window_size: int) -> int:
+    """calculate output channel number of rfft operation at `window_size`.
 
     Args:
-        n_fft (int): wave length of fft.
+        window_size (int): wave length of fft.
 
     Returns:
         rfft_channel_num (int): Channel length of rfft output.
     """
-    return int(n_fft / 2) + 1
+    return int(window_size / 2) + 1
 
 
-def calc_target_sound_spectrogram_length(chunk: int, n_fft: int, hop_len: int) -> int:
+def calc_target_sound_spectrogram_length(chunk: int, window_size: int, hop_len: int) -> int:
     """Calculate output length of target sound spectrogram.
 
     Args:
         chunk (int): Generation length in one step.
-        n_fft (int): wave length of fft.
+        window_size (int): wave length of fft.
         hop_len (int): Step length of stft.
 
     Returns:
