@@ -48,4 +48,13 @@ class ObservationSpace(BaseSpace):
 
 @dataclass
 class ActionSpace(BaseSpace):
-    """"""
+    """Defining action space."""
+
+    pitch_shift: float | spaces.Box
+    tenseness: float | spaces.Box
+    trachea: float | spaces.Box
+    epiglottis: float | spaces.Box
+    velum: float | spaces.Box
+    tongue_index: int | spaces.Box
+    tongue_diameter: float | spaces.Box
+    lips: float | spaces.Box

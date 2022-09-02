@@ -53,3 +53,17 @@ def test_ObservationSpace():
     assert obs.tenseness == 0.5
     assert np.all(obs.current_tract_diameters == np.arange(10, dtype=float))
     assert np.all(obs.nose_diameters == np.arange(5, dtype=float))
+
+
+def test_ActionSpace():
+    cls = ptspaces.ActionSpace
+
+    act = cls(0.0, 0.1, 0.2, 0.3, 0.4, 5, 0.6, 0.7)
+    assert act.pitch_shift == 0.0
+    assert act.tenseness == 0.1
+    assert act.trachea == 0.2
+    assert act.epiglottis == 0.3
+    assert act.velum == 0.4
+    assert act.tongue_index == 5
+    assert act.tongue_diameter == 0.6
+    assert act.lips == 0.7
