@@ -37,6 +37,8 @@ class BaseSpace:
 class ObservationSpace(BaseSpace):
     """Defining observation space."""
 
+    target_sound_wave: np.ndarray | spaces.Box
+    generated_sound_wave: np.ndarray | spaces.Box
     target_sound: np.ndarray | spaces.Box
     previous_generated_sound: np.ndarray | spaces.Box
     current_frequency: float | spaces.Box
