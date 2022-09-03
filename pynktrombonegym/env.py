@@ -122,7 +122,7 @@ class PynkTrombone(gym.Env):
             target_sound_spectrogram,
             generated_sound_spectrogram,
             frequency,
-            current_pitch_shift,
+            pitch_shift,
             tenseness,
             current_tract_diameters,
             nose_diameters,
