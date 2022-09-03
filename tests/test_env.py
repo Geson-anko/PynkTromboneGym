@@ -205,3 +205,22 @@ def test_get_generated_sound_spectrogram():
     assert spect.dtype == np.float32
     assert spect.shape == (channel, length)
     assert np.min(spect) >= 0.0
+
+
+def test_get_current_observation():
+    dflt = env.PynkTrombone(target_sound_files)
+    dflt.initialize_state()
+
+    obs = env.ObservationSpace.from_dict(dflt.get_current_observation())
+
+    assert np.all(obs.target_sound_wave == dflt.target_sound_wave)
+    assert np.all(obs.generated_sound_wave == dflt.generated_sound_wave)
+    assert np.all(obs.target_sound == dflt.get_target_sound_spectrogram())
+    assert np.all(obs.previous_generated_sound == dflt.get_generated_sound_spectrogram())
+    assert obs.current_frequency == dflt.voc.frequency
+
+    pitch_shift = np.log2(dflt.voc.frequency / dflt.default_frequency)
+    assert abs(obs.current_pitch_shift - pitch_shift) < 1e-10
+    assert obs.tenseness == dflt.voc.tenseness
+    assert np.all(obs.current_tract_diameters == dflt.voc.current_tract_diameters)
+    assert np.all(obs.nose_diameters == dflt.voc.nose_diameters)
