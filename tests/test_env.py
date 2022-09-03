@@ -57,7 +57,7 @@ def test__init__():
     assert "target_sound_wave" in obsk
     assert "generated_sound_wave" in obsk
     assert "target_sound_spectrogram" in obsk
-    assert "previous_generated_sound" in obsk
+    assert "generated_sound_spectrogram" in obsk
     assert "current_frequency" in obsk
     assert "current_pitch_shift" in obsk
     assert "tenseness" in obsk
@@ -146,7 +146,7 @@ def test_define_observation_space():
     assert_space(obs["target_sound_wave"], spaces.Box(-1.0, 1.0, (chunk,)))
     assert_space(obs["generated_sound_wave"], spaces.Box(-1.0, 1.0, (chunk,)))
     assert_space(obs["target_sound_spectrogram"], spaces.Box(0, float("inf"), spct_shape))
-    assert_space(obs["previous_generated_sound"], spaces.Box(0, float("inf"), spct_shape))
+    assert_space(obs["generated_sound_spectrogram"], spaces.Box(0, float("inf"), spct_shape))
     assert_space(obs["current_frequency"], spaces.Box(0, default.sample_rate // 2))
     assert_space(obs["current_pitch_shift"], spaces.Box(-1.0, 1.0))
     assert_space(obs["tenseness"], spaces.Box(0.0, 1.0))
@@ -216,7 +216,7 @@ def test_get_current_observation():
     assert np.all(obs.target_sound_wave == dflt.target_sound_wave)
     assert np.all(obs.generated_sound_wave == dflt.generated_sound_wave)
     assert np.all(obs.target_sound_spectrogram == dflt.get_target_sound_spectrogram())
-    assert np.all(obs.previous_generated_sound == dflt.get_generated_sound_spectrogram())
+    assert np.all(obs.generated_sound_spectrogram == dflt.get_generated_sound_spectrogram())
     assert obs.current_frequency == dflt.voc.frequency
 
     pitch_shift = np.log2(dflt.voc.frequency / dflt.default_frequency)
