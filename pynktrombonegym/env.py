@@ -70,6 +70,11 @@ class PynkTrombone(gym.Env):
         ]
         return wave
 
+    @property
+    def generated_sound_wave(self) -> np.ndarray:
+        """Returns generated sound wave at `current_step`"""
+        return self._generated_sound_wave_2chunks[-self.generate_chunk :]
+
     def set_target_sound_files(self, file_paths: Sequence[str]) -> None:
         """Set `file_paths` to `self.target_sound_files`
         Args:
