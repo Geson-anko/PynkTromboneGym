@@ -52,7 +52,7 @@ def test_ObservationSpace():
     assert np.all(obs.generated_sound_wave == np.arange(-100, 0, dtype=float))
     assert np.all(obs.target_sound_spectrogram == np.zeros(10))
     assert np.all(obs.generated_sound_spectrogram == np.ones(10))
-    assert obs.current_frequency == 400.0
+    assert obs.frequency == 400.0
     assert obs.current_pitch_shift == 0.0
     assert obs.tenseness == 0.5
     assert np.all(obs.current_tract_diameters == np.arange(10, dtype=float))
