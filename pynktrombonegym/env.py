@@ -135,6 +135,8 @@ class PynkTrombone(gym.Env):
 
         self.observation_space = spaces.Dict(
             ObservationSpace(
+                spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
+                spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
                 spaces.Box(0, float("inf"), spct_shape),
                 spaces.Box(0, float("inf"), spct_shape),
                 spaces.Box(0, self.sample_rate // 2),
