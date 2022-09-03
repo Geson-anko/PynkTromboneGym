@@ -107,6 +107,12 @@ def test_property_target_sound_wave():
     assert np.all(default.target_sound_wave == tgt1)
 
 
+def test_property_generated_sound_wave():
+    default = env.PynkTrombone(target_sound_files)
+    assert default.current_step == 0  # Assumption
+    assert len(default.generated_sound_wave) == default.generate_chunk
+
+
 def test_define_observation_space():
     default = env.PynkTrombone(target_sound_files)
     default.define_observation_space()
