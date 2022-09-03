@@ -43,7 +43,7 @@ stftによって生成されたスペクトログラムをメル周波数スペ�
 ## State
 音声生成を強化学習の枠組みで行うために必要な状態情報を定義します。これらはOpenAI GymのAPIを用いて`Dict`型で返されます。
 
-- target_sound  
+- target_sound_spectrogram    
     次のステップで生成する波形のスペクトログラムです。
 
 - previous_generated_sound  
