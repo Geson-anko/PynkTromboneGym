@@ -208,3 +208,33 @@ class PynkTrombone(gym.Env):
         spect = spct.stft(self._generated_sound_wave_2chunks, self.stft_window_size, self.stft_hop_length)
         spect = np.abs(spect[-length:]).T.astype(np.float32)
         return spect
+
+    def get_current_observation(self) -> OrderedDict:
+        """Return current observation.
+
+        Return:
+            observation (OrdereDict): observation.
+        """
+        target_sound_wave = self.target_sound_wave
+        generated_sound_wave = self.generated_sound_wave
+        target_sound_spectrogram = self.get_target_sound_spectrogram()
+        generated_sound_spectrogram = self.get_generated_sound_spectrogram()
+        frequency = self.voc.frequency
+        pitch_shift = np.log2(frequency / self.default_frequency)
+        tenseness = self.voc.tenseness
+        tract_diameters = self.voc.current_tract_diameters
+        nose_diameters = self.voc.nose_diameters
+
+        obs = ObservationSpace(
+            target_sound_wave,
+            generated_sound_wave,
+            target_sound_spectrogram,
+            generated_sound_spectrogram,
+            frequency,
+            pitch_shift,
+            tenseness,
+            tract_diameters,
+            nose_diameters,
+        ).to_dict()
+
+        return OrderedDict(obs)
