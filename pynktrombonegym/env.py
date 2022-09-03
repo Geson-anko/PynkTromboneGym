@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Sequence
+from typing import Optional, Sequence
 
 import gym
 import numpy as np
@@ -238,3 +238,22 @@ class PynkTrombone(gym.Env):
         ).to_dict()
 
         return OrderedDict(obs)
+
+    def reset(
+        self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None
+    ) -> OrderedDict:
+        """Reset this enviroment.
+        Choice sound file randomly and load waveform at random start point.
+        Internal vocal tract model `Voc` is reconstructed too.
+
+        Returns initial `target_sound` spectrogram from loaded sound and
+        same shape zero array as initial `previous_generated_sound`.
+
+        Returns:
+            observation (OrderedDict): Initial observation of this enviroment.
+        """
+        super().reset(seed=seed, return_info=return_info, options=options)
+
+        self.initialize_state()
+        obs = self.get_current_observation()
+        return obs
