@@ -52,15 +52,11 @@ class PynkTrombone(gym.Env):
             stft_hop_length = int(stft_window_size / 4)
         self.stft_hop_length = stft_hop_length
 
-        self.voc = Voc(sample_rate, generate_chunk, default_freq=default_frequency)
+        self.initialize_state()
 
         self.define_action_space()
         self.define_observation_space()
         self.define_reward_range()
-
-        self.current_step = 0
-        self.target_sound_wave_full = self.load_sound_wave_randomly()
-        self._generated_sound_wave_2chunks = np.zeros(self.generate_chunk * 2, dtype=np.float32)
 
     @property
     def target_sound_wave(self) -> np.ndarray:
@@ -81,6 +77,13 @@ class PynkTrombone(gym.Env):
             file_paths (Iterable[str]): Paths to target sound files.
         """
         self.target_sound_files = file_paths
+
+    def initialize_state(self) -> None:
+        """Initialize this enviroment state."""
+        self.current_step = 0
+        self.target_sound_wave_full = self.load_sound_wave_randomly()
+        self._generated_sound_wave_2chunks = np.zeros(self.generate_chunk * 2, dtype=np.float32)
+        self.voc = Voc(self.sample_rate, self.generate_chunk, default_freq=self.default_frequency)
 
     action_space: spaces.Dict
 
