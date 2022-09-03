@@ -91,3 +91,29 @@ def load_sound_file(file_path: Any, sample_rate: int) -> np.ndarray:
     wave = np.array(sound.get_array_of_samples()).reshape(-1) / max_value
     wave = wave.astype(np.float32)
     return wave
+
+
+def pad_tail(wave: np.ndarray, target_length: int, padding_mode: padT = "constant", **kwds) -> np.ndarray:
+    """Pad wave array at tail to match target_length.
+
+    Args:
+        wave (ndarray): 1d wave array.
+        target_length (int): Same or larger than wave array length.
+        padding_mode: (padT): Padding mode. See docs of `np.pad`
+        kwds (dict): keywords of `np.pad`.
+
+    Returns:
+        padded_wave (ndarray): padded_wave length is same with target_length.
+
+    Raises:
+        ValueError: If `target_length` is smaller than wave length.
+    """
+    pad_length = target_length - len(wave)
+    if pad_length < 0:
+        raise ValueError(
+            "`target_length` must be same or larger than wave length! "
+            f"wave length: {len(wave)}, target_length: {target_length}"
+        )
+
+    padded_wave = np.pad(wave, (0, pad_length), padding_mode, **kwds)
+    return padded_wave
