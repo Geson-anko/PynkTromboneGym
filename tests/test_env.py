@@ -113,6 +113,22 @@ def test_property_generated_sound_wave():
     assert len(default.generated_sound_wave) == default.generate_chunk
 
 
+def test_initialize_state():
+    default = env.PynkTrombone(target_sound_files)
+    default.initialize_state()
+
+    assert default.current_step == 0
+    assert type(default.target_sound_wave_full) is np.ndarray
+    assert np.all(default._generated_sound_wave_2chunks == 0.0)
+
+    voc0 = default.voc
+    default.current_step += 10 # Assumption
+    default.initialize_state()
+    voc1 = default.voc
+    assert voc0 is not voc1
+    assert default.current_step == 0
+
+
 def test_define_observation_space():
     default = env.PynkTrombone(target_sound_files)
     default.define_observation_space()
