@@ -120,7 +120,7 @@ class PynkTrombone(gym.Env):
 
         Observation space:
             target_sound_spectrogram,
-            previous_generated_sound,
+            generated_sound_spectrogram,
             current_frequency,
             current_pitch_shift,
             tenseness,

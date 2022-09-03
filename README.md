@@ -46,7 +46,7 @@ stftによって生成されたスペクトログラムをメル周波数スペ�
 - target_sound_spectrogram    
     次のステップで生成する波形のスペクトログラムです。
 
-- previous_generated_sound  
+- generated_sound_spectrogram  
     前のステップまでで生成した波形のスペクトログラムです。報酬計算に使用されています。
 - current_frequency, current_pitch_shift  
     現在の声帯の周波数と、`default_frequency`からピッチシフトした大きさ（指数部）を返します。
