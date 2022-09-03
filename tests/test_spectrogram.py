@@ -45,3 +45,23 @@ def test_load_sound_file():
     assert len(w2.shape) == 1
     assert np.abs(w2).max() <= 1
     assert w2.dtype == np.float32
+
+
+def test_pad_tail():
+    f = spct.pad_tail
+
+    src = np.arange(10, dtype=float)
+    pad = np.zeros(5, dtype=float)
+    assert np.all(f(src, 15) == np.concatenate([src, pad]))
+
+    src = np.random.randn(3)
+    pad = np.ones(2, dtype=float)
+    assert np.all(f(src, 5, constant_values=1.0) == np.concatenate([src, pad]))
+
+    # Check value error
+    try:
+        src = np.arange(100)
+        f(src, 1)
+        raise AssertionError
+    except ValueError:
+        pass
