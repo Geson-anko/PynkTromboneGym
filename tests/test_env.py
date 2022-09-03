@@ -1,4 +1,5 @@
 import glob
+from collections import OrderedDict
 
 import numpy as np
 from gym import spaces
@@ -224,3 +225,11 @@ def test_get_current_observation():
     assert obs.tenseness == dflt.voc.tenseness
     assert np.all(obs.current_tract_diameters == dflt.voc.current_tract_diameters)
     assert np.all(obs.nose_diameters == dflt.voc.nose_diameters)
+
+
+def test_reset():
+    dflt = env.PynkTrombone(target_sound_files)
+
+    obs = dflt.reset()
+    assert isinstance(obs, OrderedDict)
+    env.ObservationSpace.from_dict(obs)
