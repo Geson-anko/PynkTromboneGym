@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import Sequence
 
 import gym
@@ -6,6 +7,7 @@ from gym import spaces
 from pynktrombone import Voc
 
 from . import spectrogram as spct
+from .spaces import ActionSpace, ObservationSpace
 
 
 class PynkTrombone(gym.Env):
@@ -79,16 +81,16 @@ class PynkTrombone(gym.Env):
             lips
         """
         self.action_space = spaces.Dict(
-            {
-                "pitch_shift": spaces.Box(-1.0, 1.0),
-                "tenseness": spaces.Box(0.0, 1.0),
-                "trachea": spaces.Box(0, 3.5),
-                "epiglottis": spaces.Box(0, 3.5),
-                "velum": spaces.Box(0, 3.5),
-                "tongue_index": spaces.Box(12, 40, dtype=int),
-                "tongue_diameter": spaces.Box(0, 3.5),
-                "lips": spaces.Box(0, 1.5),
-            }
+            ActionSpace(
+                spaces.Box(-1.0, 1.0),
+                spaces.Box(0.0, 1.0),
+                spaces.Box(0, 3.5),
+                spaces.Box(0, 3.5),
+                spaces.Box(0, 3.5),
+                spaces.Box(12, 40, dtype=int),
+                spaces.Box(0, 3.5),
+                spaces.Box(0, 1.5),
+            ).to_dict()
         )
 
     observation_space: spaces.Dict
@@ -112,15 +114,15 @@ class PynkTrombone(gym.Env):
         )
 
         self.observation_space = spaces.Dict(
-            {
-                "target_sound": spaces.Box(0, float("inf"), spct_shape),
-                "previous_generated_sound": spaces.Box(0, float("inf"), spct_shape),
-                "current_frequency": spaces.Box(0, self.sample_rate // 2),
-                "current_pitch_shift": spaces.Box(-1.0, 1.0),
-                "tenseness": spaces.Box(0.0, 1.0),
-                "current_tract_diameters": spaces.Box(0.0, 5.0, (self.voc.tract_size,)),
-                "nose_diameters": spaces.Box(0.0, 5.0, (self.voc.nose_size,)),
-            }
+            ObservationSpace(
+                spaces.Box(0, float("inf"), spct_shape),
+                spaces.Box(0, float("inf"), spct_shape),
+                spaces.Box(0, self.sample_rate // 2),
+                spaces.Box(-1.0, 1.0),
+                spaces.Box(0.0, 1.0),
+                spaces.Box(0.0, 5.0, (self.voc.tract_size,)),
+                spaces.Box(0.0, 5.0, (self.voc.nose_size,)),
+            ).to_dict()
         )
 
     def define_reward_range(self) -> None:
