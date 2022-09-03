@@ -60,6 +60,7 @@ class PynkTrombone(gym.Env):
 
         self.current_step = 0
         self.target_sound_wave_full = self.load_sound_wave_randomly()
+        self._generated_sound_wave_2chunks = np.zeros(self.generate_chunk * 2, dtype=np.float32)
 
     def set_target_sound_files(self, file_paths: Sequence[str]) -> None:
         """Set `file_paths` to `self.target_sound_files`
@@ -168,4 +169,24 @@ class PynkTrombone(gym.Env):
         )
         spect = spct.stft(wave, self.stft_window_size, self.stft_hop_length)[-length:]
         spect = np.abs(spect).T.astype(np.float32)
+        return spect
+
+    def get_generated_sound_spectrogram(self) -> np.ndarray:
+        """Convert generated sound wave to spectrogram
+
+        There is `_generated_sound_wave_2chunks` as private variable,
+        it contains previous and current generated wave for computing
+        stft naturally.
+
+        Returns:
+            spectrogram (ndarray): A spectrogram of generated sound wave.
+                Shape -> (C, L)
+                Dtype -> float32
+        """
+        length = spct.calc_target_sound_spectrogram_length(
+            self.generate_chunk, self.stft_window_size, self.stft_hop_length
+        )
+
+        spect = spct.stft(self._generated_sound_wave_2chunks, self.stft_window_size, self.stft_hop_length)
+        spect = np.abs(spect[-length:]).T.astype(np.float32)
         return spect
