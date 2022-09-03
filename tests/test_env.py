@@ -149,3 +149,22 @@ def test_get_target_sound_spectrogram():
     assert spect.dtype == np.float32
     assert spect.shape == (channel, length)
     assert np.min(spect) >= 0.0
+
+
+def test_get_generated_sound_spectrogram():
+    default = env.PynkTrombone(target_sound_files)
+    assert type(default._generated_sound_wave_2chunks) is np.ndarray
+    w2c = default._generated_sound_wave_2chunks
+    assert len(w2c) == 2 * default.generate_chunk
+
+    spect = default.get_generated_sound_spectrogram()
+
+    length = spct.calc_target_sound_spectrogram_length(
+        default.generate_chunk, default.stft_window_size, default.stft_hop_length
+    )
+    channel = spct.calc_rfft_channel_num(default.stft_window_size)
+
+    assert type(spect) is np.ndarray
+    assert spect.dtype == np.float32
+    assert spect.shape == (channel, length)
+    assert np.min(spect) >= 0.0
