@@ -64,7 +64,7 @@ class PynkTrombone(gym.Env):
         wave = self.target_sound_wave_full[
             self.current_step * self.generate_chunk : (self.current_step + 1) * self.generate_chunk
         ]
-        return wave
+        return spct.pad_tail(wave, self.generate_chunk)
 
     @property
     def generated_sound_wave(self) -> np.ndarray:
@@ -177,10 +177,12 @@ class PynkTrombone(gym.Env):
         """
         if self.current_step == 0:
             wave = self.target_sound_wave_full[: self.generate_chunk]
+            wave = spct.pad_tail(wave, self.generate_chunk)
         else:
             wave = self.target_sound_wave_full[
                 (self.current_step - 1) * self.generate_chunk : (self.current_step + 1) * self.generate_chunk
             ]
+            wave = spct.pad_tail(wave, 2 * self.generate_chunk)
 
         length = spct.calc_target_sound_spectrogram_length(
             self.generate_chunk, self.stft_window_size, self.stft_hop_length
