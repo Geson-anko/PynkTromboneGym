@@ -54,6 +54,8 @@ def test__init__():
 
     assert rr == (-float("inf"), 0.0)
 
+    assert "target_sound_wave" in obsk
+    assert "generated_sound_wave" in obsk
     assert "target_sound" in obsk
     assert "previous_generated_sound" in obsk
     assert "current_frequency" in obsk
@@ -70,30 +72,6 @@ def test__init__():
     assert "tongue_index" in actk
     assert "tongue_diameter" in actk
     assert "lips" in actk
-
-
-def test_set_target_sound_files():
-    default = env.PynkTrombone(target_sound_files)
-
-    file_paths = ["aaa", "bbb", "ccc"]
-    assert default.target_sound_files == target_sound_files
-    default.set_target_sound_files(file_paths)
-    assert default.target_sound_files == file_paths
-
-
-def test_define_action_space():
-    default = env.PynkTrombone(target_sound_files)
-    default.define_action_space()
-
-    acts = default.action_space
-    assert_space(acts["pitch_shift"], spaces.Box(-1.0, 1.0))
-    assert_space(acts["tenseness"], spaces.Box(0.0, 1.0))
-    assert_space(acts["trachea"], spaces.Box(0, 3.5))
-    assert_space(acts["epiglottis"], spaces.Box(0, 3.5))
-    assert_space(acts["velum"], spaces.Box(0, 3.5))
-    assert_space(acts["tongue_index"], spaces.Box(12, 40, dtype=int))
-    assert_space(acts["tongue_diameter"], spaces.Box(0, 3.5))
-    assert_space(acts["lips"], spaces.Box(0, 1.5))
 
 
 def test_property_target_sound_wave():
@@ -113,6 +91,15 @@ def test_property_generated_sound_wave():
     assert len(default.generated_sound_wave) == default.generate_chunk
 
 
+def test_set_target_sound_files():
+    default = env.PynkTrombone(target_sound_files)
+
+    file_paths = ["aaa", "bbb", "ccc"]
+    assert default.target_sound_files == target_sound_files
+    default.set_target_sound_files(file_paths)
+    assert default.target_sound_files == file_paths
+
+
 def test_initialize_state():
     default = env.PynkTrombone(target_sound_files)
     default.initialize_state()
@@ -122,11 +109,26 @@ def test_initialize_state():
     assert np.all(default._generated_sound_wave_2chunks == 0.0)
 
     voc0 = default.voc
-    default.current_step += 10 # Assumption
+    default.current_step += 10  # Assumption
     default.initialize_state()
     voc1 = default.voc
     assert voc0 is not voc1
     assert default.current_step == 0
+
+
+def test_define_action_space():
+    default = env.PynkTrombone(target_sound_files)
+    default.define_action_space()
+
+    acts = default.action_space
+    assert_space(acts["pitch_shift"], spaces.Box(-1.0, 1.0))
+    assert_space(acts["tenseness"], spaces.Box(0.0, 1.0))
+    assert_space(acts["trachea"], spaces.Box(0, 3.5))
+    assert_space(acts["epiglottis"], spaces.Box(0, 3.5))
+    assert_space(acts["velum"], spaces.Box(0, 3.5))
+    assert_space(acts["tongue_index"], spaces.Box(12, 40, dtype=int))
+    assert_space(acts["tongue_diameter"], spaces.Box(0, 3.5))
+    assert_space(acts["lips"], spaces.Box(0, 1.5))
 
 
 def test_define_observation_space():
@@ -140,7 +142,9 @@ def test_define_observation_space():
             default.generate_chunk, default.stft_window_size, default.stft_hop_length
         ),
     )
-
+    chunk = default.generate_chunk
+    assert_space(obs["target_sound_wave"], spaces.Box(-1.0, 1.0, (chunk,)))
+    assert_space(obs["generated_sound_wave"], spaces.Box(-1.0, 1.0, (chunk,)))
     assert_space(obs["target_sound"], spaces.Box(0, float("inf"), spct_shape))
     assert_space(obs["previous_generated_sound"], spaces.Box(0, float("inf"), spct_shape))
     assert_space(obs["current_frequency"], spaces.Box(0, default.sample_rate // 2))
