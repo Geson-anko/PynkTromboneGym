@@ -41,7 +41,7 @@ class ObservationSpace(BaseSpace):
     generated_sound_wave: np.ndarray | spaces.Box
     target_sound_spectrogram: np.ndarray | spaces.Box
     generated_sound_spectrogram: np.ndarray | spaces.Box
-    current_frequency: float | spaces.Box
+    frequency: float | spaces.Box
     current_pitch_shift: float | spaces.Box
     tenseness: float | spaces.Box
     current_tract_diameters: np.ndarray | spaces.Box
