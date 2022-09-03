@@ -96,6 +96,17 @@ def test_define_action_space():
     assert_space(acts["lips"], spaces.Box(0, 1.5))
 
 
+def test_property_target_sound_wave():
+    default = env.PynkTrombone(target_sound_files)
+    tgt_full = default.target_sound_wave_full
+    tgt0 = tgt_full[: default.generate_chunk]
+    assert np.all(default.target_sound_wave == tgt0)
+
+    default.current_step = 1
+    tgt1 = tgt_full[default.generate_chunk : 2 * default.generate_chunk]
+    assert np.all(default.target_sound_wave == tgt1)
+
+
 def test_define_observation_space():
     default = env.PynkTrombone(target_sound_files)
     default.define_observation_space()

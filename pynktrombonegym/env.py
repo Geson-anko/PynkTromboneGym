@@ -62,6 +62,14 @@ class PynkTrombone(gym.Env):
         self.target_sound_wave_full = self.load_sound_wave_randomly()
         self._generated_sound_wave_2chunks = np.zeros(self.generate_chunk * 2, dtype=np.float32)
 
+    @property
+    def target_sound_wave(self) -> np.ndarray:
+        """Returns sliced `target_sound_wave_full` at `current_step`"""
+        wave = self.target_sound_wave_full[
+            self.current_step * self.generate_chunk : (self.current_step + 1) * self.generate_chunk
+        ]
+        return wave
+
     def set_target_sound_files(self, file_paths: Sequence[str]) -> None:
         """Set `file_paths` to `self.target_sound_files`
         Args:
