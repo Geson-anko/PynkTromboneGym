@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 import gym
 import numpy as np
@@ -259,3 +259,19 @@ class PynkTrombone(gym.Env):
         self.initialize_state()
         obs = self.get_current_observation()
         return obs
+
+
+def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
+    """Compute mse.
+    Output and Target must have same shape.
+
+    Args:
+        output (ndarray): The output of model.
+        target (ndarray): Target of output
+
+    Returns:
+        mse (float): Mean Squared Error.
+    """
+    delta = output - target
+    mse = np.sum(delta * delta / target.size)
+    return mse
