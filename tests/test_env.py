@@ -271,6 +271,15 @@ def test_done():
     assert dflt.done
 
 
+def test_property_max_steps():
+    dflt = env.PynkTrombone(target_sound_files)
+
+    for _ in range(10):
+        dflt.reset()
+        m = math.ceil(len(dflt.target_sound_wave_full) / dflt.generate_chunk)
+        assert dflt.max_steps == m
+
+
 def test_mean_squared_error():
     f = env.mean_squared_error
 
