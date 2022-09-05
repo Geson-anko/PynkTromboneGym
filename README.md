@@ -59,12 +59,12 @@ stftによって生成されたスペクトログラムをメル周波数スペ�
 
 ## Action
 
-- Glottis
+- Glottis  
     声門を調整します。
     - pitch_shift  
         Range: [-1, 1] (この値は環境をラップすることで変更できます。)  
         `default_frequency`からどれだけピッチシフトをする値です。周波数は次の式で与えられます。  
-        $$ frequency = 2^{pitch \ shift} $$
+        $$ frequency = default \ frequency \times  2^{pitch \ shift} $$
 
     - tenseness  
         Range: [0, 1]  
@@ -84,7 +84,11 @@ stftによって生成されたスペクトログラムをメル周波数スペ�
     - lips  
         Range: [0, 1.5]
 
-### About `done`
+### Step
+上記のアクションは、全て`Voc`の調整のみに使われます。  
+`Voc.play_chunk()`によって音声波形を生成し、観測、報酬、終了判定、デバッグ情報を返します。  
+
+#### About `done`
 ターゲットとなる音声の長さに生成波形が達した場合、`done`となります。この状態で行動しようとすると例外を返します。  
 
 ## Reward  
