@@ -260,6 +260,18 @@ class PynkTrombone(gym.Env):
         obs = self.get_current_observation()
         return obs
 
+    def compute_reward(self) -> float:
+        """Compute current reward.
+        Measure 'minus' MSE between target and generated.
+
+        Returns:
+            reward (float):  Computed reward value.
+        """
+        target = self.get_target_sound_spectrogram()
+        generated = self.get_generated_sound_spectrogram()
+
+        return -mean_squared_error(generated, target)
+
 
 def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
     """Compute mse.
