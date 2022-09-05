@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 import numpy as np
-from gym import spaces
 
 
 @dataclass
@@ -52,11 +51,11 @@ class ObservationSpace(BaseSpace):
 class ActionSpace(BaseSpace):
     """Defining action space."""
 
-    pitch_shift: float | spaces.Box
-    tenseness: float | spaces.Box
-    trachea: float | spaces.Box
-    epiglottis: float | spaces.Box
-    velum: float | spaces.Box
-    tongue_index: int | spaces.Box
-    tongue_diameter: float | spaces.Box
-    lips: float | spaces.Box
+    pitch_shift: np.ndarray | Any
+    tenseness: np.ndarray | Any
+    trachea: np.ndarray | Any
+    epiglottis: np.ndarray | Any
+    velum: np.ndarray | Any
+    tongue_index: np.ndarray | Any
+    tongue_diameter: np.ndarray | Any
+    lips: np.ndarray | Any
