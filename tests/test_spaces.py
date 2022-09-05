@@ -41,9 +41,9 @@ def test_ObservationSpace():
         np.arange(-100, 0, dtype=float),
         np.zeros(10),
         np.ones(10),
-        400.0,
-        0.0,
-        0.5,
+        np.array([400.0]),
+        np.array([0.0]),
+        np.array([0.5]),
         np.arange(10, dtype=float),
         np.arange(5, dtype=float),
     )
@@ -52,9 +52,9 @@ def test_ObservationSpace():
     assert np.all(obs.generated_sound_wave == np.arange(-100, 0, dtype=float))
     assert np.all(obs.target_sound_spectrogram == np.zeros(10))
     assert np.all(obs.generated_sound_spectrogram == np.ones(10))
-    assert obs.frequency == 400.0
-    assert obs.pitch_shift == 0.0
-    assert obs.tenseness == 0.5
+    assert obs.frequency.item() == 400.0
+    assert obs.pitch_shift.item() == 0.0
+    assert obs.tenseness.item() == 0.5
     assert np.all(obs.current_tract_diameters == np.arange(10, dtype=float))
     assert np.all(obs.nose_diameters == np.arange(5, dtype=float))
 

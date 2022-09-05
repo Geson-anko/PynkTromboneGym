@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Mapping
+from typing import Any, Mapping
 
 import numpy as np
 from gym import spaces
@@ -37,15 +37,15 @@ class BaseSpace:
 class ObservationSpace(BaseSpace):
     """Defining observation space."""
 
-    target_sound_wave: np.ndarray | spaces.Box
-    generated_sound_wave: np.ndarray | spaces.Box
-    target_sound_spectrogram: np.ndarray | spaces.Box
-    generated_sound_spectrogram: np.ndarray | spaces.Box
-    frequency: float | spaces.Box
-    pitch_shift: float | spaces.Box
-    tenseness: float | spaces.Box
-    current_tract_diameters: np.ndarray | spaces.Box
-    nose_diameters: np.ndarray | spaces.Box
+    target_sound_wave: np.ndarray | Any
+    generated_sound_wave: np.ndarray | Any
+    target_sound_spectrogram: np.ndarray | Any
+    generated_sound_spectrogram: np.ndarray | Any
+    frequency: np.ndarray | Any
+    pitch_shift: np.ndarray | Any
+    tenseness: np.ndarray | Any
+    current_tract_diameters: np.ndarray | Any
+    nose_diameters: np.ndarray | Any
 
 
 @dataclass
