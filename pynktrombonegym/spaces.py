@@ -2,10 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Mapping
+from typing import Any, Mapping
 
 import numpy as np
-from gym import spaces
 
 
 @dataclass
@@ -37,26 +36,26 @@ class BaseSpace:
 class ObservationSpace(BaseSpace):
     """Defining observation space."""
 
-    target_sound_wave: np.ndarray | spaces.Box
-    generated_sound_wave: np.ndarray | spaces.Box
-    target_sound_spectrogram: np.ndarray | spaces.Box
-    generated_sound_spectrogram: np.ndarray | spaces.Box
-    frequency: float | spaces.Box
-    pitch_shift: float | spaces.Box
-    tenseness: float | spaces.Box
-    current_tract_diameters: np.ndarray | spaces.Box
-    nose_diameters: np.ndarray | spaces.Box
+    target_sound_wave: np.ndarray | Any
+    generated_sound_wave: np.ndarray | Any
+    target_sound_spectrogram: np.ndarray | Any
+    generated_sound_spectrogram: np.ndarray | Any
+    frequency: np.ndarray | Any
+    pitch_shift: np.ndarray | Any
+    tenseness: np.ndarray | Any
+    current_tract_diameters: np.ndarray | Any
+    nose_diameters: np.ndarray | Any
 
 
 @dataclass
 class ActionSpace(BaseSpace):
     """Defining action space."""
 
-    pitch_shift: float | spaces.Box
-    tenseness: float | spaces.Box
-    trachea: float | spaces.Box
-    epiglottis: float | spaces.Box
-    velum: float | spaces.Box
-    tongue_index: int | spaces.Box
-    tongue_diameter: float | spaces.Box
-    lips: float | spaces.Box
+    pitch_shift: np.ndarray | Any
+    tenseness: np.ndarray | Any
+    trachea: np.ndarray | Any
+    epiglottis: np.ndarray | Any
+    velum: np.ndarray | Any
+    tongue_index: np.ndarray | Any
+    tongue_diameter: np.ndarray | Any
+    lips: np.ndarray | Any
