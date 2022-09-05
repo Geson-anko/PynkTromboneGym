@@ -235,6 +235,20 @@ def test_reset():
     env.ObservationSpace.from_dict(obs)
 
 
+def test_compute_reward():
+    dflt = env.PynkTrombone(target_sound_files)
+
+    dflt.reset()
+    r = dflt.compute_reward()
+    assert r <= 0
+    dflt.reset()
+    r = dflt.compute_reward()
+    assert r <= 0
+    dflt.reset()
+    r = dflt.compute_reward()
+    assert r <= 0
+
+
 def test_mean_squared_error():
     f = env.mean_squared_error
 
