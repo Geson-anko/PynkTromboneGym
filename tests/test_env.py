@@ -233,3 +233,15 @@ def test_reset():
     obs = dflt.reset()
     assert isinstance(obs, OrderedDict)
     env.ObservationSpace.from_dict(obs)
+
+
+def test_mean_squared_error():
+    f = env.mean_squared_error
+
+    o1 = np.zeros(10)
+    t1 = np.ones(10)
+    assert abs(f(o1, t1) - 1.0) < 1e-10
+
+    o2 = np.arange(4, dtype=float)
+    t2 = np.arange(-4, 0, dtype=float)
+    assert abs(f(o2, t2) - 16.0) < 1e-10
