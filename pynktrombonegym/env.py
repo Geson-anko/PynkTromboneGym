@@ -272,6 +272,11 @@ class PynkTrombone(gym.Env):
 
         return -mean_squared_error(generated, target)
 
+    @property
+    def done(self) -> bool:
+        """Check if enviroment has done."""
+        return self.current_step * self.generate_chunk >= len(self.target_sound_wave_full)
+
 
 def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
     """Compute mse.
