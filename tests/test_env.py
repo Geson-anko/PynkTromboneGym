@@ -250,7 +250,7 @@ def test_compute_reward():
     assert r <= 0
 
 
-def test_done():
+def test_property_done():
     dflt = env.PynkTrombone(target_sound_files)
 
     dflt.reset()
