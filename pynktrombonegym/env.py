@@ -1,5 +1,6 @@
+import math
 from collections import OrderedDict
-from typing import Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence, Tuple
 
 import gym
 import numpy as np
@@ -276,6 +277,11 @@ class PynkTrombone(gym.Env):
     def done(self) -> bool:
         """Check if enviroment has done."""
         return self.current_step * self.generate_chunk >= len(self.target_sound_wave_full)
+
+    @property
+    def max_steps(self) -> int:
+        """Returns max step number of this environment."""
+        return math.ceil(len(self.target_sound_wave_full) / self.generate_chunk)
 
 
 def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
