@@ -1,4 +1,5 @@
 import glob
+import math
 from collections import OrderedDict
 
 import numpy as np
@@ -247,6 +248,27 @@ def test_compute_reward():
     dflt.reset()
     r = dflt.compute_reward()
     assert r <= 0
+
+
+def test_done():
+    dflt = env.PynkTrombone(target_sound_files)
+
+    dflt.reset()
+    assert not dflt.done
+    dflt.reset()
+    assert not dflt.done
+    dflt.reset()
+    assert not dflt.done
+
+    c = dflt.generate_chunk
+    le = len(dflt.target_sound_wave_full)
+    max_step = math.ceil(le / c)
+    dflt.current_step = max_step
+    assert dflt.done
+    dflt.current_step = max_step - 1
+    assert not dflt.done
+    dflt.current_step = max_step + 1
+    assert dflt.done
 
 
 def test_mean_squared_error():
