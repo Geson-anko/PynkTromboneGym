@@ -299,11 +299,54 @@ def test_property_max_steps():
         assert dflt.max_steps == m
 
 
+def test_step():
+    dflt = env.PynkTrombone(target_sound_files)
+
+    dflt.reset()
+    act = dflt.action_space.sample()
+    obs, reward, done, info = dflt.step(act)
+
+    acts = env.ActionSpace.from_dict(act)
+    # obss = env.ObservationSpace.from_dict(obs)
+
+    voc = dflt.voc
+    assert voc.frequency == dflt.default_frequency * (2**acts.pitch_shift)
+    assert voc.tenseness == acts.tenseness
+    assert abs(voc.tract.trachea - acts.trachea) < 1e-10
+    assert abs(voc.tract.epiglottis - acts.epiglottis) < 1e-10
+    assert abs(voc.velum - acts.velum) < 1e-10
+    # Missing assertion of tongue_index
+    # Missing assertion of tongue_diameter
+    assert abs(voc.tract.lips - acts.lips) < 1e-10
+    assert dflt.current_step == 1
+
+    ### Step until done.
+    dflt.reset()
+    max_steps = dflt.max_steps
+    for i in range(max_steps):
+        act = dflt.action_space.sample()
+        obs, reward, done, info = dflt.step(act)
+        env.ObservationSpace.from_dict(obs)
+        assert isinstance(info, dict)
+        assert isinstance(reward, float)
+        if (i + 1) == max_steps:
+            assert done
+        else:
+            assert not done
+
+    try:
+        dflt.step(act)
+        raise AssertionError
+    except RuntimeError:
+        pass
+
+
 def test_mean_squared_error():
     f = env.mean_squared_error
 
     o1 = np.zeros(10)
     t1 = np.ones(10)
+    assert isinstance(f(o1, t1), float)
     assert abs(f(o1, t1) - 1.0) < 1e-10
 
     o2 = np.arange(4, dtype=float)

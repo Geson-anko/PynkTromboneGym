@@ -1,6 +1,6 @@
 import math
 from collections import OrderedDict
-from typing import Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
 
 import gym
 import numpy as np
@@ -283,6 +283,49 @@ class PynkTrombone(gym.Env):
         """Returns max step number of this environment."""
         return math.ceil(len(self.target_sound_wave_full) / self.generate_chunk)
 
+    def step(self, action: Mapping) -> Tuple[OrderedDict, float, bool, dict]:
+        """Step this enviroment by action.
+
+        Args:
+            action (OrderedDict): Dict of action values.
+
+        Returns:
+            observation (OrderedDict): Next step observation.
+            reward (float): Reward of current step.
+            done (bool): Whether the environment has been finished or not.
+            info (dict): Debug informations.
+
+        Raises:
+            RuntimeError: If done is True, raises runtime error.
+                Please call `reset` method of this enviroment.
+        """
+        if self.done:
+            raise RuntimeError("This environment has been finished. Please call `reset` method.")
+
+        info: Dict[Any, Any] = dict()
+
+        acts = ActionSpace.from_dict(action)
+        self.voc.frequency = self.default_frequency * (2**acts.pitch_shift)
+        self.voc.tenseness = acts.tenseness
+        self.voc.set_tract_parameters(
+            acts.trachea.item(),
+            acts.epiglottis.item(),
+            acts.velum.item(),
+            acts.tongue_index.item(),
+            acts.tongue_diameter.item(),
+            acts.lips.item(),
+        )
+
+        generated_wave = self.voc.play_chunk()
+        self._generated_sound_wave_2chunks = np.concatenate([self.generated_sound_wave, generated_wave])
+        reward = self.compute_reward()  # Minus error between generated and 'current' target.
+
+        ##### Next step #####
+        self.current_step += 1
+        done = self.done
+        obs = self.get_current_observation()
+        return obs, reward, done, info
+
 
 def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
     """Compute mse.
@@ -296,5 +339,5 @@ def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
         mse (float): Mean Squared Error.
     """
     delta = output - target
-    mse = np.sum(delta * delta / target.size)
+    mse = float(np.sum(delta * delta / target.size))
     return mse
