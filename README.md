@@ -64,6 +64,7 @@ stftによって生成されたスペクトログラムをメル周波数スペ�
     - pitch_shift  
         Range: [-1, 1] (この値は環境をラップすることで変更できます。)  
         `default_frequency`からどれだけピッチシフトをする値です。周波数は次の式で与えられます。  
+        
         $$ frequency = default \ frequency \times  2^{pitch \ shift} $$
 
     - tenseness  
