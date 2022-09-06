@@ -222,11 +222,11 @@ class PynkTrombone(gym.Env):
         generated_sound_wave = self.generated_sound_wave
         target_sound_spectrogram = self.get_target_sound_spectrogram()
         generated_sound_spectrogram = self.get_generated_sound_spectrogram()
-        frequency = self.voc.frequency
+        frequency = np.array([self.voc.frequency], dtype=np.float32)
         pitch_shift = np.log2(frequency / self.default_frequency)
-        tenseness = self.voc.tenseness
-        tract_diameters = self.voc.current_tract_diameters
-        nose_diameters = self.voc.nose_diameters
+        tenseness = np.array([self.voc.tenseness], dtype=np.float32)
+        tract_diameters = self.voc.current_tract_diameters.astype(np.float32)
+        nose_diameters = self.voc.nose_diameters.astype(np.float32)
 
         obs = ObservationSpace(
             target_sound_wave,
