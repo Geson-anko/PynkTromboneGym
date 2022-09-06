@@ -213,19 +213,38 @@ def test_get_current_observation():
     dflt = env.PynkTrombone(target_sound_files)
     dflt.initialize_state()
 
-    obs = env.ObservationSpace.from_dict(dflt.get_current_observation())
+    # Type checking
+    obs_dict = dflt.get_current_observation()
+    obs = env.ObservationSpace.from_dict(obs_dict)
+    sample_obs = dflt.observation_space.sample()
+    for sk in sample_obs.keys():
+        ov, sv = obs_dict[sk], sample_obs[sk]
+        assert type(ov) == type(sv), sk
+        assert ov.shape == sv.shape, sk
+        assert ov.dtype == sv.dtype, sk
 
+    assert isinstance(obs.target_sound_wave, np.ndarray)
+    assert isinstance(obs.generated_sound_wave, np.ndarray)
+    assert isinstance(obs.target_sound_spectrogram, np.ndarray)
+    assert isinstance(obs.generated_sound_spectrogram, np.ndarray)
+    assert isinstance(obs.frequency, np.ndarray)
+    assert isinstance(obs.pitch_shift, np.ndarray)
+    assert isinstance(obs.tenseness, np.ndarray)
+    assert isinstance(obs.current_tract_diameters, np.ndarray)
+    assert isinstance(obs.nose_diameters, np.ndarray)
+
+    # Value checking
     assert np.all(obs.target_sound_wave == dflt.target_sound_wave)
     assert np.all(obs.generated_sound_wave == dflt.generated_sound_wave)
     assert np.all(obs.target_sound_spectrogram == dflt.get_target_sound_spectrogram())
     assert np.all(obs.generated_sound_spectrogram == dflt.get_generated_sound_spectrogram())
-    assert obs.frequency == dflt.voc.frequency
+    assert obs.frequency.item() == dflt.voc.frequency
 
     pitch_shift = np.log2(dflt.voc.frequency / dflt.default_frequency)
-    assert abs(obs.pitch_shift - pitch_shift) < 1e-10
-    assert obs.tenseness == dflt.voc.tenseness
-    assert np.all(obs.current_tract_diameters == dflt.voc.current_tract_diameters)
-    assert np.all(obs.nose_diameters == dflt.voc.nose_diameters)
+    assert abs(obs.pitch_shift.item() - pitch_shift) < 1e-10
+    assert abs(obs.tenseness.item() - dflt.voc.tenseness) < 1e-6
+    assert np.all(obs.current_tract_diameters == dflt.voc.current_tract_diameters.astype(np.float32))
+    assert np.all(obs.nose_diameters == dflt.voc.nose_diameters.astype(np.float32))
 
 
 def test_reset():
