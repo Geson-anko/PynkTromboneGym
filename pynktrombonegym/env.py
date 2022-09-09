@@ -1,8 +1,10 @@
+import io
 import math
 from collections import OrderedDict
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, Literal, Mapping, Optional, Sequence, Tuple, Union
 
 import gym
+import matplotlib.pyplot as plt
 import numpy as np
 from gym import spaces
 from pynktrombone import Voc
@@ -325,6 +327,45 @@ class PynkTrombone(gym.Env):
         done = self.done
         obs = self.get_current_observation()
         return obs, reward, done, info
+
+    def create_state_figure(self) -> plt.Figure:
+        """Create a figure of current environment state.
+
+        Plotting:
+        - current_step
+        - current_tract_diameters
+        - nose_diameters
+        - current voc frequency
+        - current voc tenseness
+
+        Returns:
+            figure (plt.Figure): A figure of current environment state.
+        """
+        obs = ObservationSpace.from_dict(self.get_current_observation())
+
+        fig = plt.figure(figsize=(6.4 * 1.5, 4.8 * 1.5))
+        ax = fig.add_subplot(1, 1, 1)
+
+        indices = list(range(self.voc.tract_size))
+        nose_indices = indices[-self.voc.nose_size :]
+        ax.set_ylim(0.0, 5.0)
+        ax.plot(nose_indices, obs.nose_diameters, label="nose diameters")
+        ax.plot(indices, obs.current_tract_diameters, label="tract diameters")
+        ax.legend()
+
+        ax.set_title("Tract diameters")
+        ax.set_xlabel("diameter index")
+        ax.set_ylabel("diameter [cm]")
+
+        info = (
+            f"current step: {self.current_step}\n"
+            f"frequency: {obs.frequency.item(): .2f}\n"
+            f"tenseness: {obs.tenseness.item(): .2f}\n"
+        )
+
+        ax.text(1, 4.0, info)
+
+        return fig
 
 
 def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
