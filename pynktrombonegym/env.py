@@ -368,6 +368,25 @@ class PynkTrombone(gym.Env):
         return fig
 
 
+def fig2rgba_array(figure: plt.Figure) -> np.ndarray:
+    """Convert matplotlib figure to numpy array.
+
+    Args:
+        figure (plt.Figure): A matplotlib figure.
+
+    Returns:
+        image array (np.ndarray): Numpy array of rendered figure.
+            Shape: (Height, Width, RGBA)
+    """
+
+    figure.canvas.draw()
+    w, h = figure.canvas.get_width_height()
+    buf = np.frombuffer(figure.canvas.tostring_argb(), dtype=np.uint8)
+    buf = buf.reshape(h * 2, w * 2, 4).copy()
+    buf = np.roll(buf, 3, axis=-1)
+    return buf
+
+
 def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
     """Compute mse.
     Output and Target must have same shape.
