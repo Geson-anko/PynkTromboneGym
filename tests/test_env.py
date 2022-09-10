@@ -110,6 +110,7 @@ def test_initialize_state():
     assert default.current_step == 0
     assert type(default.target_sound_wave_full) is np.ndarray
     assert np.all(default._generated_sound_wave_2chunks == 0.0)
+    assert default._stored_state_figures == []
 
     voc0 = default.voc
     default.current_step += 10  # Assumption
@@ -361,6 +362,49 @@ def test_fig2argb_array():
     assert array.ndim == 3
 
     plt.imsave(f"data/test_results/{__name__}.test_fig2rgba_array.png", array)
+
+
+def test_render():
+    dflt = env.PynkTrombone(target_sound_files)
+    dflt.reset()
+    assert dflt.render(None) is None
+    figure = dflt.render("single_figure")
+    assert isinstance(figure, plt.Figure)
+    figure.savefig(f"data/test_results/{__name__}.test_render.figure.png")
+
+    array = dflt.render("single_rgb_array")
+    assert isinstance(array, np.ndarray)
+    assert array.shape[-1] == 3
+    plt.imsave(f"data/test_results/{__name__}.test_render.single_rgb_array.png", array)
+    plt.close()
+
+    dflt.reset()
+    render_times = 5
+    for _ in range(render_times):
+        dflt.render()
+    figures = dflt.render("figures")
+    assert len(figures) == render_times + 1
+    assert dflt._stored_state_figures == []
+    for f in figures:
+        assert isinstance(f, plt.Figure)
+    plt.close()
+
+    for _ in range(render_times):
+        dflt.render()
+    fig_arrays = dflt.render("rgb_arrays")
+    assert len(fig_arrays) == render_times + 1
+    assert dflt._stored_state_figures == []
+    for fa in fig_arrays:
+        assert isinstance(fa, np.ndarray)
+        assert fa.shape[-1] == 3
+        assert fa.ndim == 3
+    plt.close()
+
+    try:
+        dflt.render("1234567890")  # type: ignore
+        raise AssertionError
+    except NotImplementedError:
+        pass
 
 
 def test_mean_squared_error():
