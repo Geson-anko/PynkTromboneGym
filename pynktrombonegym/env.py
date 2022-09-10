@@ -1,7 +1,7 @@
-import io
+import copy
 import math
 from collections import OrderedDict
-from typing import Any, Dict, Literal, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Literal, Mapping, Optional, Sequence, Tuple, TypeVar, Union
 
 import gym
 import matplotlib.pyplot as plt
@@ -11,6 +11,8 @@ from pynktrombone import Voc
 
 from . import spectrogram as spct
 from .spaces import ActionSpace, ObservationSpace
+
+RenderFrame = TypeVar("RenderFrame", plt.Figure, np.ndarray)
 
 
 class PynkTrombone(gym.Env):
@@ -87,6 +89,7 @@ class PynkTrombone(gym.Env):
         self.target_sound_wave_full = self.load_sound_wave_randomly()
         self._generated_sound_wave_2chunks = np.zeros(self.generate_chunk * 2, dtype=np.float32)
         self.voc = Voc(self.sample_rate, self.generate_chunk, default_freq=self.default_frequency)
+        self._stored_state_figures: List[plt.Figure] = []
 
     action_space: spaces.Dict
 
@@ -366,6 +369,51 @@ class PynkTrombone(gym.Env):
         ax.text(1, 4.0, info)
 
         return fig
+
+    def render(
+        self, mode: Optional[Literal["figures", "rgb_arrays", "single_figure", "single_rgb_array"]] = None
+    ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
+        """Render a figure of current Vocal Tract diameters and etc.
+
+        Args:
+            mode (Optional[Literal]): Rendering mode.
+                - None: Create figure and store it.
+                - "figures": Render current figure and return all stored figures.
+                - "rgb_arrays": Render current figure array and return all
+                    stored figure array.
+                - "single_rgb_array": Return RGB image array of figure.
+                - "singe_figure": Return a figure of matplotlib.pyplot.
+                Note: "figures" and "rgb_arrays" mode clear all stored figures.
+                    If you want all figures and arrays, Use "figures" mode and
+                    `fig2rgba_array` function to convert figures to numpy array.
+
+        Returns:
+            image (Optional[Union[RenderFrame, List[RenderFrame]]]): Renderd image or images.
+
+        Raises:
+            NotImplementedError: When mode is unexpected value.
+        """
+
+        fig = self.create_state_figure()
+
+        if mode is None:
+            self._stored_state_figures.append(fig)
+            return None
+        elif mode == "single_figure":
+            return fig
+        elif mode == "single_rgb_array":
+            return fig2rgba_array(fig)[:, :, :3]
+
+        figures = copy.copy(self._stored_state_figures)
+        figures.append(fig)
+        self._stored_state_figures.clear()
+
+        if mode == "figures":
+            return figures
+        elif mode == "rgb_arrays":
+            return [fig2rgba_array(f)[:, :, :3] for f in figures]
+        else:
+            raise NotImplementedError(f"Render mode {mode} is not implemented!")
 
 
 def fig2rgba_array(figure: plt.Figure) -> np.ndarray:
