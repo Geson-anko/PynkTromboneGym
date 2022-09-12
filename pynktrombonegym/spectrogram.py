@@ -2,9 +2,9 @@
 import math
 from typing import Any, Literal
 
+import librosa
 import numpy as np
 from pydub import AudioSegment
-import librosa
 
 padT = Literal[
     "constant", "edge", "linear_ramp", "maximum", "mean", "median", "minimum", "reflect", "symmetric", "wrap", "empty"
@@ -50,7 +50,7 @@ def stft(wave: np.ndarray, window_size: int, hop_len: int, padding_mode: padT = 
         Z (ndarray): STFT of wave.
             shape: (Steps, Channels), dtype: np.complex128
     """
-    Z = librosa.stft(wave, n_fft=window_size, hop_length=hop_len,pad_mode=padding_mode)
+    Z = librosa.stft(wave, n_fft=window_size, hop_length=hop_len, pad_mode=padding_mode)
     return Z.T
 
 
