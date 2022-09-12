@@ -4,6 +4,7 @@ from typing import Any, Literal
 
 import numpy as np
 from pydub import AudioSegment
+import librosa
 
 padT = Literal[
     "constant", "edge", "linear_ramp", "maximum", "mean", "median", "minimum", "reflect", "symmetric", "wrap", "empty"
@@ -49,22 +50,8 @@ def stft(wave: np.ndarray, window_size: int, hop_len: int, padding_mode: padT = 
         Z (ndarray): STFT of wave.
             shape: (Steps, Channels), dtype: np.complex128
     """
-    half_window = int(window_size / 2)
-    wave_len = len(wave)
-
-    hanning: np.ndarray = np.hanning(window_size)
-    padded_wave: np.ndarray = np.pad(wave, (half_window, window_size), mode=padding_mode)
-    waves: list[np.ndarray] = []
-
-    for i in range(math.ceil(wave_len / hop_len) + 1):
-        p = i * hop_len
-        waves.append(padded_wave[p : p + window_size])
-
-    waves = np.stack(waves)
-    waves = waves * np.expand_dims(hanning, 0)
-    Z = np.fft.rfft(waves, axis=1)
-
-    return Z
+    Z = librosa.stft(wave, n_fft=window_size, hop_length=hop_len,pad_mode=padding_mode)
+    return Z.T
 
 
 def load_sound_file(file_path: Any, sample_rate: int) -> np.ndarray:
