@@ -32,7 +32,7 @@ class PynkTrombone(gym.Env):
         target_sound_files: Sequence[str],
         sample_rate: int = 44100,
         default_frequency: float = 400.0,
-        generate_chunk: int = 512,
+        generate_chunk: int = 1024,
         stft_window_size: int = 1024,
         stft_hop_length: int = None,
     ):
