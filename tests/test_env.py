@@ -24,7 +24,7 @@ def test__init__():
     assert default.target_sound_files == target_sound_files
     assert default.sample_rate == 44100
     assert default.default_frequency == 400
-    assert default.generate_chunk == 512
+    assert default.generate_chunk == 1024
     assert default.stft_window_size == 1024
     assert default.stft_hop_length == 256
 
