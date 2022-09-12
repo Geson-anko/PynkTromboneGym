@@ -70,3 +70,12 @@ def test_do_nothing():
         return act
 
     generate_sound(dflt, action_fn, f"{__name__}.test_do_nothing.wav")
+
+
+def test_randomly():
+    dflt = env.PynkTrombone(target_sound_files)
+
+    def action_fn(e: env.PynkTrombone) -> Mapping:
+        return e.action_space.sample()
+
+    generate_sound(dflt, action_fn, f"{__name__}.test_randomly.wav")
