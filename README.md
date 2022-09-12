@@ -20,7 +20,7 @@ PynkTromboneEnvは人間のVocal Tractをシミュレーションし、強化学
     基準となる声の高さです。この周波数から上下1オクターブが生成可能な周波数帯です。
 
 - generate_chunk: int  
-    1ステップで生成する音声波形の長さです。pynkTromboneではデフォルトで`512`です。
+    1ステップで生成する音声波形の長さです。pynkTromboneではデフォルトで`1024`です。
 - stft_window_size: int  
     波形をstftする時のウィンドウサイズです。デフォルトでは`1024`です。
 
