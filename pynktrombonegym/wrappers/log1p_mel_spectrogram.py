@@ -63,3 +63,10 @@ class Log1pMelSpectrogram(gym.ObservationWrapper):
                 (n_mels, TimeStep)
         """
         return np.log1p(np.matmul(self.mel_filter_bank, spectrogram))
+
+    def observation(self, observation):
+        """Wrapps observation."""
+        obs = ObservationSpace.from_dict(observation)
+        obs.target_sound_spectrogram = self.log1p_mel(obs.target_sound_spectrogram)
+        obs.generated_sound_spectrogram = self.log1p_mel(obs.generated_sound_spectrogram)
+        return obs.to_dict()
