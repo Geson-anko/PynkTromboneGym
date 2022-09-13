@@ -75,3 +75,19 @@ def test_log1p_mel():
     filename = os.path.join(output_dir, f"{__name__}.test_log1p_mel.png")
     fig.savefig(filename)
     plt.close()
+
+
+def test_observation():
+    dflt = l1pms.Log1pMelSpectrogram(PynkTrombone(target_sound_files))
+    obs = dflt.env.get_current_observation()
+    wrapped = dflt.observation(obs)
+    wrapped_obs = ObservationSpace.from_dict(wrapped)
+
+    shape = (
+        dflt.n_mels,
+        calc_target_sound_spectrogram_length(
+            dflt.env.generate_chunk, dflt.env.stft_window_size, dflt.env.stft_hop_length
+        ),
+    )
+    assert wrapped_obs.target_sound_spectrogram.shape == shape
+    assert wrapped_obs.generated_sound_spectrogram.shape == shape
