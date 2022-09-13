@@ -52,3 +52,14 @@ class Log1pMelSpectrogram(gym.ObservationWrapper):
         obss.generated_sound_spectrogram = log1p_mel_space
 
         self.observation_space = obss.to_dict()
+
+    def log1p_mel(self, spectrogram: np.ndarray) -> np.ndarray:
+        """Convert to log 1p mel spectrogram.
+        Args:
+            spectrogram (np.ndarray): 2d numpy array. (Channel, TimeStep)
+
+        Returns:
+            log1p mel spectrogram (np.ndarray): log1p mel scaled spectrogram.
+                (n_mels, TimeStep)
+        """
+        return np.log1p(np.matmul(self.mel_filter_bank, spectrogram))

@@ -1,3 +1,6 @@
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 from gym import spaces
 
@@ -7,6 +10,8 @@ from pynktrombonegym.spectrogram import calc_rfft_channel_num, calc_target_sound
 from pynktrombonegym.wrappers import log1p_mel_spectrogram as l1pms
 
 from ..test_env import assert_space, target_sound_files
+
+output_dir = "data/test_results"
 
 
 def test__init__():
@@ -45,3 +50,28 @@ def test_define_observation_space():
     assert_space(obss.tenseness, pure_obs.tenseness)
     assert_space(obss.current_tract_diameters, pure_obs.current_tract_diameters)
     assert_space(obss.nose_diameters, pure_obs.nose_diameters)
+
+
+def test_log1p_mel():
+    n_mels = 80
+    dflt = l1pms.Log1pMelSpectrogram(PynkTrombone(target_sound_files), n_mels=n_mels)
+
+    spect = dflt.env.get_target_sound_spectrogram()
+    log1p_mel = dflt.log1p_mel(spect)
+    assert log1p_mel.shape == (n_mels, spect.shape[-1])
+
+    target = np.log1p(np.matmul(dflt.mel_filter_bank, spect))
+    assert np.mean(np.abs(target - log1p_mel)) < 1e-6
+
+    fig, axises = plt.subplots(1, 2)
+    ax0, ax1 = axises
+    ax0.set_title("spectrogram")
+    xs1, ys1 = spect.shape
+    ax0.imshow(spect, aspect=ys1 / xs1)
+    xm1, ym1 = log1p_mel.shape
+    ax1.set_title("log1p mel spectrogram")
+    ax1.imshow(log1p_mel, aspect=ym1 / xm1)
+
+    filename = os.path.join(output_dir, f"{__name__}.test_log1p_mel.png")
+    fig.savefig(filename)
+    plt.close()
