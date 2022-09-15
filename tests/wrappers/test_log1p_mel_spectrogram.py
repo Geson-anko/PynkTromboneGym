@@ -41,6 +41,12 @@ def test_define_observation_space():
     space = spaces.Box(0.0, float("inf"), shape)
     assert_space(obss.target_sound_spectrogram, space)
     assert_space(obss.generated_sound_spectrogram, space)
+    sampled = dflt.observation_space.sample()
+    sampled_obs = ObservationSpace.from_dict(sampled)
+    assert sampled_obs.generated_sound_spectrogram.shape == space.shape
+    assert sampled_obs.generated_sound_spectrogram.dtype == space.dtype
+    assert sampled_obs.target_sound_spectrogram.shape == space.shape
+    assert sampled_obs.target_sound_spectrogram.dtype == space.dtype
 
     pure_obs = ObservationSpace.from_dict(dflt.env.observation_space)
     assert_space(obss.target_sound_wave, pure_obs.target_sound_wave)
