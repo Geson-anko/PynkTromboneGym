@@ -1,15 +1,20 @@
 """Definitions of Observation and Action space."""
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from typing import Any, Mapping
 
 import numpy as np
 
 
+
 @dataclass
 class BaseSpace:
     """The BaseSpace for defining Observation and Action space."""
+
+    def __post_init__(self):
+        warnings.warn("Dataclass space defition is not recommended and will be removed in the future.", FutureWarning)
 
     def to_dict(self) -> dict:
         """Return class members as dict.
