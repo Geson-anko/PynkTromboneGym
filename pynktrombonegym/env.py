@@ -59,9 +59,9 @@ class PynkTrombone(gym.Env):
 
         self.initialize_state()
 
-        self.define_action_space()
-        self.define_observation_space()
-        self.define_reward_range()
+        self.action_space = self.define_action_space()
+        self.observation_space = self.define_observation_space()
+        self.reward_range = self.define_reward_range()
 
     @property
     def target_sound_wave(self) -> np.ndarray:
@@ -93,7 +93,7 @@ class PynkTrombone(gym.Env):
 
     action_space: spaces.Dict
 
-    def define_action_space(self) -> None:
+    def define_action_space(self) -> spaces.Dict:
         """Defines action space of this environment.
 
         Action space:
@@ -106,7 +106,7 @@ class PynkTrombone(gym.Env):
             tongue_diameter,
             lips
         """
-        self.action_space = spaces.Dict(
+        action_space = spaces.Dict(
             ActionSpace(
                 spaces.Box(-1.0, 1.0),
                 spaces.Box(0.0, 1.0),
@@ -118,10 +118,11 @@ class PynkTrombone(gym.Env):
                 spaces.Box(0, 1.5),
             ).to_dict()
         )
+        return action_space
 
     observation_space: spaces.Dict
 
-    def define_observation_space(self) -> None:
+    def define_observation_space(self) -> spaces.Dict:
         """Defines observation space of this enviroment.
 
         Observation space:
@@ -139,7 +140,7 @@ class PynkTrombone(gym.Env):
             spct.calc_target_sound_spectrogram_length(self.generate_chunk, self.stft_window_size, self.stft_hop_length),
         )
 
-        self.observation_space = spaces.Dict(
+        observation_space = spaces.Dict(
             ObservationSpace(
                 spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
                 spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
@@ -153,14 +154,17 @@ class PynkTrombone(gym.Env):
             ).to_dict()
         )
 
-    def define_reward_range(self) -> None:
+        return observation_space
+
+    def define_reward_range(self) -> Tuple[float, float]:
         """Define reward range of this environment.
         Reward is computed by measuring MSE between
         target_sound_spectrogram and generated_sound, and times -1.
 
         Range: [-inf, 0]
         """
-        self.reward_range = (-float("inf"), 0.0)
+        reward_range = (-float("inf"), 0.0)
+        return reward_range
 
     def load_sound_wave_randomly(self) -> np.ndarray:
         """Load sound file randomly.
