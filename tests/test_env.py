@@ -122,9 +122,8 @@ def test_initialize_state():
 
 def test_define_action_space():
     default = env.PynkTrombone(target_sound_files)
-    default.define_action_space()
+    acts = default.define_action_space()
 
-    acts = default.action_space
     assert_space(acts["pitch_shift"], spaces.Box(-1.0, 1.0))
     assert_space(acts["tenseness"], spaces.Box(0.0, 1.0))
     assert_space(acts["trachea"], spaces.Box(0, 3.5))
