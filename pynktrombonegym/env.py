@@ -60,7 +60,7 @@ class PynkTrombone(gym.Env):
         self.initialize_state()
 
         self.action_space = self.define_action_space()
-        self.define_observation_space()
+        self.observation_space = self.define_observation_space()
         self.define_reward_range()
 
     @property
@@ -122,7 +122,7 @@ class PynkTrombone(gym.Env):
 
     observation_space: spaces.Dict
 
-    def define_observation_space(self) -> None:
+    def define_observation_space(self) -> spaces.Dict:
         """Defines observation space of this enviroment.
 
         Observation space:
@@ -140,7 +140,7 @@ class PynkTrombone(gym.Env):
             spct.calc_target_sound_spectrogram_length(self.generate_chunk, self.stft_window_size, self.stft_hop_length),
         )
 
-        self.observation_space = spaces.Dict(
+        observation_space = spaces.Dict(
             ObservationSpace(
                 spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
                 spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
@@ -153,6 +153,8 @@ class PynkTrombone(gym.Env):
                 spaces.Box(0.0, 5.0, (self.voc.nose_size,)),
             ).to_dict()
         )
+
+        return observation_space
 
     def define_reward_range(self) -> None:
         """Define reward range of this environment.
