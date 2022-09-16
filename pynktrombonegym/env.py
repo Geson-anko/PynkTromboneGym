@@ -59,7 +59,7 @@ class PynkTrombone(gym.Env):
 
         self.initialize_state()
 
-        self.define_action_space()
+        self.action_space = self.define_action_space()
         self.define_observation_space()
         self.define_reward_range()
 
@@ -93,7 +93,7 @@ class PynkTrombone(gym.Env):
 
     action_space: spaces.Dict
 
-    def define_action_space(self) -> None:
+    def define_action_space(self) -> spaces.Dict:
         """Defines action space of this environment.
 
         Action space:
@@ -106,7 +106,7 @@ class PynkTrombone(gym.Env):
             tongue_diameter,
             lips
         """
-        self.action_space = spaces.Dict(
+        action_space = spaces.Dict(
             ActionSpace(
                 spaces.Box(-1.0, 1.0),
                 spaces.Box(0.0, 1.0),
@@ -118,6 +118,7 @@ class PynkTrombone(gym.Env):
                 spaces.Box(0, 1.5),
             ).to_dict()
         )
+        return action_space
 
     observation_space: spaces.Dict
 
