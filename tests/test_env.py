@@ -136,8 +136,7 @@ def test_define_action_space():
 
 def test_define_observation_space():
     default = env.PynkTrombone(target_sound_files)
-    default.define_observation_space()
-    obs = default.observation_space
+    obs = default.define_observation_space()
 
     spct_shape = (
         spct.calc_rfft_channel_num(default.stft_window_size),
