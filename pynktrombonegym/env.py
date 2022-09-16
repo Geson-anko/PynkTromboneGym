@@ -61,7 +61,7 @@ class PynkTrombone(gym.Env):
 
         self.action_space = self.define_action_space()
         self.observation_space = self.define_observation_space()
-        self.define_reward_range()
+        self.reward_range = self.define_reward_range()
 
     @property
     def target_sound_wave(self) -> np.ndarray:
@@ -156,14 +156,15 @@ class PynkTrombone(gym.Env):
 
         return observation_space
 
-    def define_reward_range(self) -> None:
+    def define_reward_range(self) -> Tuple[float, float]:
         """Define reward range of this environment.
         Reward is computed by measuring MSE between
         target_sound_spectrogram and generated_sound, and times -1.
 
         Range: [-inf, 0]
         """
-        self.reward_range = (-float("inf"), 0.0)
+        reward_range = (-float("inf"), 0.0)
+        return reward_range
 
     def load_sound_wave_randomly(self) -> np.ndarray:
         """Load sound file randomly.
