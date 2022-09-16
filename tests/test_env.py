@@ -158,9 +158,9 @@ def test_define_observation_space():
 
 def test_define_reward_range():
     default = env.PynkTrombone(target_sound_files)
-    default.define_reward_range()
+    reward_range = default.define_reward_range()
 
-    assert default.reward_range == (-float("inf"), 0.0)
+    assert reward_range == (-float("inf"), 0.0)
 
 
 def test_load_sound_wave_randomly():
