@@ -1,6 +1,5 @@
-from typing import Any
+from typing import Any, Sequence
 
-import gym
 import librosa
 import numpy as np
 from gym import spaces
@@ -10,48 +9,53 @@ from ..spaces import ObservationSpaceNames as OSN
 from ..spectrogram import calc_target_sound_spectrogram_length
 
 
-class Log1pMelSpectrogram(gym.ObservationWrapper):
-    """This wrapper converts `target_sound_spectrogram` and
-    `generated_sound_spectrogram` to log1p mel spectrogram.
+class Log1pMelSpectrogram(PynkTrombone):
+    """This is a subclass (not environment Wrapper!) of PynkTrombone.
+
+    Convert `target_sound_spectrogram` and `generated_sound_spectrogram`
+    to log1p mel spectrogram.
+
+    Reward is computed with MSE of "log1p mel spectrogram".
+
+    This class wraps:
+    - :meth:`__init__` - create mel filter bank
+    - :meth:`define_observation_space` - Convert to mel spectrogram shape.
+    - :meth:`get_generated_sound_spectrogram` - Wraps with :meth:`log1p_mel`.
+    - :meth:`get_target_sound_spectrogram` - Wraps with :meth:`log1p_mel`.
+
+    And new attrs are:
+    - :attr:`n_mels` - The mel spectrogram channels.
+    - :attr:`mel_filter_bank` - The mel scale filter array.
     """
 
-    env: PynkTrombone
-
-    def __init__(self, env: PynkTrombone, n_mels: int = 80, new_step_api: bool = False, *, dtype: Any = np.float32):
-        """Construct this wrapper
-
+    def __init__(
+        self, target_sound_files: Sequence[str], *args, n_mels: int = 80, dtype: Any = np.float32, **kwds
+    ) -> None:
+        """Construct this environment.
         Args:
-            env (PynkTrombone): Base environment.
+            target_sound_files (Sequence[str]): Paths to target sound files.
+            *args, **kwds: Please see BaseClass `PynkTrombone` environment.
             n_mels (int): Channels of mel spectrogram.
-            new_step_api (bool): See OpenAI gym docs.
         """
-        super().__init__(env, new_step_api)
         self.n_mels = n_mels
+        super().__init__(target_sound_files, *args, **kwds)
+
         self.mel_filter_bank: np.ndarray = librosa.filters.mel(
-            sr=env.sample_rate, n_fft=env.stft_window_size, n_mels=n_mels, dtype=dtype
+            sr=self.sample_rate, n_fft=self.stft_window_size, n_mels=n_mels, dtype=dtype
         )
 
-        self.define_observation_space()
-
-    observation_space: spaces.Dict
-
-    def define_observation_space(self) -> None:
-        """Re-defines observation space of this environment wrapper.
-        This wrapper converts `target_sound_spectrogram` and
-        `generated_sound_spectrogram` to log1p mel spectrogram.
-        """
-        obs = self.env.observation_space
+    def define_observation_space(self) -> spaces.Dict:
+        """Wrapps base observation space."""
+        obss = super().define_observation_space()
         shape = (
             self.n_mels,
-            calc_target_sound_spectrogram_length(
-                self.env.generate_chunk, self.env.stft_window_size, self.env.stft_hop_length
-            ),
+            calc_target_sound_spectrogram_length(self.generate_chunk, self.stft_window_size, self.stft_hop_length),
         )
         log1p_mel_space = spaces.Box(0.0, float("inf"), shape)
-        obs[OSN.TARGET_SOUND_SPECTROGRAM] = log1p_mel_space
-        obs[OSN.GENERATED_SOUND_SPECTROGRAM] = log1p_mel_space
+        obss[OSN.TARGET_SOUND_SPECTROGRAM] = log1p_mel_space
+        obss[OSN.GENERATED_SOUND_SPECTROGRAM] = log1p_mel_space
 
-        self.observation_space = obs
+        return obss
 
     def log1p_mel(self, spectrogram: np.ndarray) -> np.ndarray:
         """Convert to log 1p mel spectrogram.
@@ -64,9 +68,12 @@ class Log1pMelSpectrogram(gym.ObservationWrapper):
         """
         return np.log1p(np.matmul(self.mel_filter_bank, spectrogram))
 
-    def observation(self, observation):
-        """Wrapps observation."""
-        obs = observation
-        obs[OSN.TARGET_SOUND_SPECTROGRAM] = self.log1p_mel(obs[OSN.TARGET_SOUND_SPECTROGRAM])
-        obs[OSN.GENERATED_SOUND_SPECTROGRAM] = self.log1p_mel(obs[OSN.GENERATED_SOUND_SPECTROGRAM])
-        return obs
+    def get_generated_sound_spectrogram(self) -> np.ndarray:
+        """Convert to log1p mel spectrogram"""
+        spect = super().get_generated_sound_spectrogram()
+        return self.log1p_mel(spect)
+
+    def get_target_sound_spectrogram(self) -> np.ndarray:
+        """Convert to log1p mel spectrogram"""
+        spect = super().get_target_sound_spectrogram()
+        return self.log1p_mel(spect)
