@@ -10,7 +10,8 @@ from gym import spaces
 from pynktrombone import Voc
 
 from . import spectrogram as spct
-from .spaces import ActionSpace, ObservationSpace
+from .spaces import ActionSpaceNames as ASN
+from .spaces import ObservationSpaceNames as OSN
 
 RenderFrame = TypeVar("RenderFrame", plt.Figure, np.ndarray)
 
@@ -107,33 +108,23 @@ class PynkTrombone(gym.Env):
             lips
         """
         action_space = spaces.Dict(
-            ActionSpace(
-                spaces.Box(-1.0, 1.0),
-                spaces.Box(0.0, 1.0),
-                spaces.Box(0, 3.5),
-                spaces.Box(0, 3.5),
-                spaces.Box(0, 3.5),
-                spaces.Box(12, 40, dtype=int),
-                spaces.Box(0, 3.5),
-                spaces.Box(0, 1.5),
-            ).to_dict()
+            {
+                ASN.PITCH_SHIFT: spaces.Box(-1.0, 1.0),
+                ASN.TENSENESS: spaces.Box(0.0, 1.0),
+                ASN.TRACHEA: spaces.Box(0, 3.5),
+                ASN.EPIGLOTTIS: spaces.Box(0, 3.5),
+                ASN.VELUM: spaces.Box(0, 3.5),
+                ASN.TONGUE_INDEX: spaces.Box(12, 40, dtype=int),
+                ASN.TONGUE_DIAMETER: spaces.Box(0, 3.5),
+                ASN.LIPS: spaces.Box(0, 1.5),
+            }
         )
         return action_space
 
     observation_space: spaces.Dict
 
     def define_observation_space(self) -> spaces.Dict:
-        """Defines observation space of this enviroment.
-
-        Observation space:
-            target_sound_spectrogram,
-            generated_sound_spectrogram,
-            frequency,
-            pitch_shift,
-            tenseness,
-            current_tract_diameters,
-            nose_diameters,
-        """
+        """Defines observation space of this enviroment."""
 
         spct_shape = (
             spct.calc_rfft_channel_num(self.stft_window_size),
@@ -141,17 +132,17 @@ class PynkTrombone(gym.Env):
         )
 
         observation_space = spaces.Dict(
-            ObservationSpace(
-                spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
-                spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
-                spaces.Box(0, float("inf"), spct_shape),
-                spaces.Box(0, float("inf"), spct_shape),
-                spaces.Box(0, self.sample_rate // 2),
-                spaces.Box(-1.0, 1.0),
-                spaces.Box(0.0, 1.0),
-                spaces.Box(0.0, 5.0, (self.voc.tract_size,)),
-                spaces.Box(0.0, 5.0, (self.voc.nose_size,)),
-            ).to_dict()
+            {
+                OSN.TARGET_SOUND_WAVE: spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
+                OSN.GENERATED_SOUND_WAVE: spaces.Box(-1.0, 1.0, (self.generate_chunk,)),
+                OSN.TARGET_SOUND_SPECTROGRAM: spaces.Box(0, float("inf"), spct_shape),
+                OSN.GENERATED_SOUND_SPECTROGRAM: spaces.Box(0, float("inf"), spct_shape),
+                OSN.FREQUENCY: spaces.Box(0, self.sample_rate // 2),
+                OSN.PITCH_SHIFT: spaces.Box(-1.0, 1.0),
+                OSN.TENSENESS: spaces.Box(0.0, 1.0),
+                OSN.CURRENT_TRACT_DIAMETERS: spaces.Box(0.0, 5.0, (self.voc.tract_size,)),
+                OSN.NOSE_DIAMETERS: spaces.Box(0.0, 5.0, (self.voc.nose_size,)),
+            }
         )
 
         return observation_space
@@ -237,19 +228,21 @@ class PynkTrombone(gym.Env):
         tract_diameters = self.voc.current_tract_diameters.astype(np.float32)
         nose_diameters = self.voc.nose_diameters.astype(np.float32)
 
-        obs = ObservationSpace(
-            target_sound_wave,
-            generated_sound_wave,
-            target_sound_spectrogram,
-            generated_sound_spectrogram,
-            frequency,
-            pitch_shift,
-            tenseness,
-            tract_diameters,
-            nose_diameters,
-        ).to_dict()
+        obs = OrderedDict(
+            {
+                OSN.TARGET_SOUND_WAVE: target_sound_wave,
+                OSN.GENERATED_SOUND_WAVE: generated_sound_wave,
+                OSN.TARGET_SOUND_SPECTROGRAM: target_sound_spectrogram,
+                OSN.GENERATED_SOUND_SPECTROGRAM: generated_sound_spectrogram,
+                OSN.FREQUENCY: frequency,
+                OSN.PITCH_SHIFT: pitch_shift,
+                OSN.TENSENESS: tenseness,
+                OSN.CURRENT_TRACT_DIAMETERS: tract_diameters,
+                OSN.NOSE_DIAMETERS: nose_diameters,
+            }
+        )
 
-        return OrderedDict(obs)
+        return obs
 
     def reset(
         self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None
@@ -313,16 +306,24 @@ class PynkTrombone(gym.Env):
 
         info: Dict[Any, Any] = dict()
 
-        acts = ActionSpace.from_dict(action)
-        self.voc.frequency = self.default_frequency * (2**acts.pitch_shift)
-        self.voc.tenseness = acts.tenseness
+        pitch_shift: np.ndarray = action[ASN.PITCH_SHIFT]
+        tenseness: np.ndarray = action[ASN.TENSENESS]
+        trachea: np.ndarray = action[ASN.TRACHEA]
+        epiglottis: np.ndarray = action[ASN.EPIGLOTTIS]
+        velum: np.ndarray = action[ASN.VELUM]
+        tongue_index: np.ndarray = action[ASN.TONGUE_INDEX]
+        tongue_diameter: np.ndarray = action[ASN.TONGUE_DIAMETER]
+        lips: np.ndarray = action[ASN.LIPS]
+
+        self.voc.frequency = self.default_frequency * (2 ** pitch_shift.item())
+        self.voc.tenseness = tenseness.item()
         self.voc.set_tract_parameters(
-            acts.trachea.item(),
-            acts.epiglottis.item(),
-            acts.velum.item(),
-            acts.tongue_index.item(),
-            acts.tongue_diameter.item(),
-            acts.lips.item(),
+            trachea.item(),
+            epiglottis.item(),
+            velum.item(),
+            tongue_index.item(),
+            tongue_diameter.item(),
+            lips.item(),
         )
 
         generated_wave = self.voc.play_chunk()
@@ -348,7 +349,11 @@ class PynkTrombone(gym.Env):
         Returns:
             figure (plt.Figure): A figure of current environment state.
         """
-        obs = ObservationSpace.from_dict(self.get_current_observation())
+        obs = self.get_current_observation()
+        nose_diameters: np.ndarray = obs[OSN.NOSE_DIAMETERS]
+        current_tract_diameters: np.ndarray = obs[OSN.CURRENT_TRACT_DIAMETERS]
+        frequency: np.ndarray = obs[OSN.FREQUENCY]
+        tenseness: np.ndarray = obs[OSN.TENSENESS]
 
         fig = plt.figure(figsize=(6.4 * 1.5, 4.8 * 1.5))
         ax = fig.add_subplot(1, 1, 1)
@@ -356,8 +361,8 @@ class PynkTrombone(gym.Env):
         indices = list(range(self.voc.tract_size))
         nose_indices = indices[-self.voc.nose_size :]
         ax.set_ylim(0.0, 5.0)
-        ax.plot(nose_indices, obs.nose_diameters, label="nose diameters")
-        ax.plot(indices, obs.current_tract_diameters, label="tract diameters")
+        ax.plot(nose_indices, nose_diameters, label="nose diameters")
+        ax.plot(indices, current_tract_diameters, label="tract diameters")
         ax.legend()
 
         ax.set_title("Tract diameters")
@@ -366,8 +371,8 @@ class PynkTrombone(gym.Env):
 
         info = (
             f"current step: {self.current_step}\n"
-            f"frequency: {obs.frequency.item(): .2f}\n"
-            f"tenseness: {obs.tenseness.item(): .2f}\n"
+            f"frequency: {frequency.item(): .2f}\n"
+            f"tenseness: {tenseness.item(): .2f}\n"
         )
 
         ax.text(1, 4.0, info)

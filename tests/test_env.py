@@ -1,6 +1,6 @@
 import glob
 import math
-from collections import OrderedDict
+from typing import Mapping, OrderedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,6 +8,8 @@ from gym import spaces
 
 from pynktrombonegym import env
 from pynktrombonegym import spectrogram as spct
+from pynktrombonegym.spaces import ActionSpaceNames as ASN
+from pynktrombonegym.spaces import ObservationSpaceNames as OSN
 
 target_sound_files = glob.glob("data/sample_target_sounds/*.wav")
 
@@ -15,6 +17,14 @@ target_sound_files = glob.glob("data/sample_target_sounds/*.wav")
 def assert_space(space: spaces.Space, currect_space: spaces.Space):
     assert space == currect_space
     assert space.dtype == currect_space.dtype
+
+
+def assert_dict_space_key(dict_space: Mapping, name_cls: object):
+    keys = list(dict_space.keys())
+    for k in name_cls.__dict__.keys():
+        if not k.startswith("__"):
+            value = getattr(name_cls, k)
+            assert value in keys, f'Key name: "{value}" is not found in dict space!'
 
 
 def test__init__():
@@ -52,29 +62,10 @@ def test__init__():
     assert type(obss) is spaces.Dict
     assert type(acts) is spaces.Dict
 
-    obsk = list(obss.keys())
-    actk = list(acts.keys())
-
     assert rr == (-float("inf"), 0.0)
 
-    assert "target_sound_wave" in obsk
-    assert "generated_sound_wave" in obsk
-    assert "target_sound_spectrogram" in obsk
-    assert "generated_sound_spectrogram" in obsk
-    assert "frequency" in obsk
-    assert "pitch_shift" in obsk
-    assert "tenseness" in obsk
-    assert "current_tract_diameters" in obsk
-    assert "nose_diameters" in obsk
-
-    assert "pitch_shift" in actk
-    assert "tenseness" in actk
-    assert "trachea" in actk
-    assert "epiglottis" in actk
-    assert "velum" in actk
-    assert "tongue_index" in actk
-    assert "tongue_diameter" in actk
-    assert "lips" in actk
+    assert_dict_space_key(obss, OSN)
+    assert_dict_space_key(acts, ASN)
 
 
 def test_property_target_sound_wave():
@@ -124,14 +115,14 @@ def test_define_action_space():
     default = env.PynkTrombone(target_sound_files)
     acts = default.define_action_space()
 
-    assert_space(acts["pitch_shift"], spaces.Box(-1.0, 1.0))
-    assert_space(acts["tenseness"], spaces.Box(0.0, 1.0))
-    assert_space(acts["trachea"], spaces.Box(0, 3.5))
-    assert_space(acts["epiglottis"], spaces.Box(0, 3.5))
-    assert_space(acts["velum"], spaces.Box(0, 3.5))
-    assert_space(acts["tongue_index"], spaces.Box(12, 40, dtype=int))
-    assert_space(acts["tongue_diameter"], spaces.Box(0, 3.5))
-    assert_space(acts["lips"], spaces.Box(0, 1.5))
+    assert_space(acts[ASN.PITCH_SHIFT], spaces.Box(-1.0, 1.0))
+    assert_space(acts[ASN.TENSENESS], spaces.Box(0.0, 1.0))
+    assert_space(acts[ASN.TRACHEA], spaces.Box(0, 3.5))
+    assert_space(acts[ASN.EPIGLOTTIS], spaces.Box(0, 3.5))
+    assert_space(acts[ASN.VELUM], spaces.Box(0, 3.5))
+    assert_space(acts[ASN.TONGUE_INDEX], spaces.Box(12, 40, dtype=int))
+    assert_space(acts[ASN.TONGUE_DIAMETER], spaces.Box(0, 3.5))
+    assert_space(acts[ASN.LIPS], spaces.Box(0, 1.5))
 
 
 def test_define_observation_space():
@@ -145,15 +136,15 @@ def test_define_observation_space():
         ),
     )
     chunk = default.generate_chunk
-    assert_space(obs["target_sound_wave"], spaces.Box(-1.0, 1.0, (chunk,)))
-    assert_space(obs["generated_sound_wave"], spaces.Box(-1.0, 1.0, (chunk,)))
-    assert_space(obs["target_sound_spectrogram"], spaces.Box(0, float("inf"), spct_shape))
-    assert_space(obs["generated_sound_spectrogram"], spaces.Box(0, float("inf"), spct_shape))
-    assert_space(obs["frequency"], spaces.Box(0, default.sample_rate // 2))
-    assert_space(obs["pitch_shift"], spaces.Box(-1.0, 1.0))
-    assert_space(obs["tenseness"], spaces.Box(0.0, 1.0))
-    assert_space(obs["current_tract_diameters"], spaces.Box(0.0, 5.0, (default.voc.tract_size,)))
-    assert_space(obs["nose_diameters"], spaces.Box(0.0, 5.0, (default.voc.nose_size,)))
+    assert_space(obs[OSN.TARGET_SOUND_WAVE], spaces.Box(-1.0, 1.0, (chunk,)))
+    assert_space(obs[OSN.GENERATED_SOUND_WAVE], spaces.Box(-1.0, 1.0, (chunk,)))
+    assert_space(obs[OSN.TARGET_SOUND_SPECTROGRAM], spaces.Box(0, float("inf"), spct_shape))
+    assert_space(obs[OSN.GENERATED_SOUND_SPECTROGRAM], spaces.Box(0, float("inf"), spct_shape))
+    assert_space(obs[OSN.FREQUENCY], spaces.Box(0, default.sample_rate // 2))
+    assert_space(obs[OSN.PITCH_SHIFT], spaces.Box(-1.0, 1.0))
+    assert_space(obs[OSN.TENSENESS], spaces.Box(0.0, 1.0))
+    assert_space(obs[OSN.CURRENT_TRACT_DIAMETERS], spaces.Box(0.0, 5.0, (default.voc.tract_size,)))
+    assert_space(obs[OSN.NOSE_DIAMETERS], spaces.Box(0.0, 5.0, (default.voc.nose_size,)))
 
 
 def test_define_reward_range():
@@ -214,37 +205,36 @@ def test_get_current_observation():
     dflt.initialize_state()
 
     # Type checking
-    obs_dict = dflt.get_current_observation()
-    obs = env.ObservationSpace.from_dict(obs_dict)
+    obs = dflt.get_current_observation()
     sample_obs = dflt.observation_space.sample()
     for sk in sample_obs.keys():
-        ov, sv = obs_dict[sk], sample_obs[sk]
+        ov, sv = obs[sk], sample_obs[sk]
         assert type(ov) == type(sv), sk
         assert ov.shape == sv.shape, sk
         assert ov.dtype == sv.dtype, sk
 
-    assert isinstance(obs.target_sound_wave, np.ndarray)
-    assert isinstance(obs.generated_sound_wave, np.ndarray)
-    assert isinstance(obs.target_sound_spectrogram, np.ndarray)
-    assert isinstance(obs.generated_sound_spectrogram, np.ndarray)
-    assert isinstance(obs.frequency, np.ndarray)
-    assert isinstance(obs.pitch_shift, np.ndarray)
-    assert isinstance(obs.tenseness, np.ndarray)
-    assert isinstance(obs.current_tract_diameters, np.ndarray)
-    assert isinstance(obs.nose_diameters, np.ndarray)
+    assert isinstance(obs[OSN.TARGET_SOUND_WAVE], np.ndarray)
+    assert isinstance(obs[OSN.GENERATED_SOUND_WAVE], np.ndarray)
+    assert isinstance(obs[OSN.TARGET_SOUND_SPECTROGRAM], np.ndarray)
+    assert isinstance(obs[OSN.GENERATED_SOUND_SPECTROGRAM], np.ndarray)
+    assert isinstance(obs[OSN.FREQUENCY], np.ndarray)
+    assert isinstance(obs[OSN.PITCH_SHIFT], np.ndarray)
+    assert isinstance(obs[OSN.TENSENESS], np.ndarray)
+    assert isinstance(obs[OSN.CURRENT_TRACT_DIAMETERS], np.ndarray)
+    assert isinstance(obs[OSN.NOSE_DIAMETERS], np.ndarray)
 
     # Value checking
-    assert np.all(obs.target_sound_wave == dflt.target_sound_wave)
-    assert np.all(obs.generated_sound_wave == dflt.generated_sound_wave)
-    assert np.all(obs.target_sound_spectrogram == dflt.get_target_sound_spectrogram())
-    assert np.all(obs.generated_sound_spectrogram == dflt.get_generated_sound_spectrogram())
-    assert obs.frequency.item() == dflt.voc.frequency
+    assert np.all(obs[OSN.TARGET_SOUND_WAVE] == dflt.target_sound_wave)
+    assert np.all(obs[OSN.GENERATED_SOUND_WAVE] == dflt.generated_sound_wave)
+    assert np.all(obs[OSN.TARGET_SOUND_SPECTROGRAM] == dflt.get_target_sound_spectrogram())
+    assert np.all(obs[OSN.GENERATED_SOUND_SPECTROGRAM] == dflt.get_generated_sound_spectrogram())
+    assert obs[OSN.FREQUENCY].item() == dflt.voc.frequency
 
     pitch_shift = np.log2(dflt.voc.frequency / dflt.default_frequency)
-    assert abs(obs.pitch_shift.item() - pitch_shift) < 1e-10
-    assert abs(obs.tenseness.item() - dflt.voc.tenseness) < 1e-6
-    assert np.all(obs.current_tract_diameters == dflt.voc.current_tract_diameters.astype(np.float32))
-    assert np.all(obs.nose_diameters == dflt.voc.nose_diameters.astype(np.float32))
+    assert abs(obs[OSN.PITCH_SHIFT].item() - pitch_shift) < 1e-10
+    assert abs(obs[OSN.TENSENESS].item() - dflt.voc.tenseness) < 1e-6
+    assert np.all(obs[OSN.CURRENT_TRACT_DIAMETERS] == dflt.voc.current_tract_diameters.astype(np.float32))
+    assert np.all(obs[OSN.NOSE_DIAMETERS] == dflt.voc.nose_diameters.astype(np.float32))
 
 
 def test_reset():
@@ -252,7 +242,7 @@ def test_reset():
 
     obs = dflt.reset()
     assert isinstance(obs, OrderedDict)
-    env.ObservationSpace.from_dict(obs)
+    assert_dict_space_key(obs, OSN)
 
 
 def test_compute_reward():
@@ -306,18 +296,15 @@ def test_step():
     act = dflt.action_space.sample()
     obs, reward, done, info = dflt.step(act)
 
-    acts = env.ActionSpace.from_dict(act)
-    # obss = env.ObservationSpace.from_dict(obs)
-
     voc = dflt.voc
-    assert voc.frequency == dflt.default_frequency * (2**acts.pitch_shift)
-    assert voc.tenseness == acts.tenseness
-    assert abs(voc.tract.trachea - acts.trachea) < 1e-10
-    assert abs(voc.tract.epiglottis - acts.epiglottis) < 1e-10
-    assert abs(voc.velum - acts.velum) < 1e-10
+    assert voc.frequency == dflt.default_frequency * (2 ** act[ASN.PITCH_SHIFT].item())
+    assert voc.tenseness == act[ASN.TENSENESS].item()
+    assert abs(voc.tract.trachea - act[ASN.TRACHEA].item()) < 1e-10
+    assert abs(voc.tract.epiglottis - act[ASN.EPIGLOTTIS].item()) < 1e-10
+    assert abs(voc.velum - act[ASN.VELUM].item()) < 1e-10
     # Missing assertion of tongue_index
     # Missing assertion of tongue_diameter
-    assert abs(voc.tract.lips - acts.lips) < 1e-10
+    assert abs(voc.tract.lips - act[ASN.LIPS]) < 1e-10
     assert dflt.current_step == 1
 
     ### Step until done.
@@ -326,7 +313,7 @@ def test_step():
     for i in range(max_steps):
         act = dflt.action_space.sample()
         obs, reward, done, info = dflt.step(act)
-        env.ObservationSpace.from_dict(obs)
+        assert_dict_space_key(obs, OSN)
         assert isinstance(info, dict)
         assert isinstance(reward, float)
         if (i + 1) == max_steps:

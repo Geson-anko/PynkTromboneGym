@@ -8,6 +8,8 @@ import numpy as np
 import soundfile
 
 from pynktrombonegym import env
+from pynktrombonegym.spaces import ActionSpaceNames as ASN
+from pynktrombonegym.spaces import ObservationSpaceNames as OSN
 
 target_sound_files = glob.glob("data/sample_target_sounds/*.wav")
 output_dir = "data/test_results/generated_sounds"
@@ -44,8 +46,8 @@ def generate_sound(environment: env.PynkTrombone, action_fn: Callable, file_name
 
         action = action_fn(environment)
         obs, _, _, _ = environment.step(action)
-        obss = env.ObservationSpace.from_dict(obs)
-        generated_waves.append(obss.generated_sound_wave)
+        generated_sound_wave = obs[OSN.GENERATED_SOUND_WAVE]
+        generated_waves.append(generated_sound_wave)
 
     generated_sound_wave = np.concatenate(generated_waves).astype(np.float32)
 
@@ -57,16 +59,17 @@ def test_do_nothing():
     dflt = env.PynkTrombone(target_sound_files)
 
     def action_fn(e: env.PynkTrombone) -> Mapping:
-        act = env.ActionSpace(
-            pitch_shift=np.array([0.0]),
-            tenseness=np.array([0.0]),
-            trachea=np.array([0.6]),
-            epiglottis=np.array([1.1]),
-            velum=np.array([0.01]),
-            tongue_index=np.array([20]),
-            tongue_diameter=np.array([2.0]),
-            lips=np.array([1.5]),
-        ).to_dict()
+
+        act = {
+            ASN.PITCH_SHIFT: np.array([0.0]),
+            ASN.TENSENESS: np.array([0.0]),
+            ASN.TRACHEA: np.array([0.6]),
+            ASN.EPIGLOTTIS: np.array([1.1]),
+            ASN.VELUM: np.array([0.01]),
+            ASN.TONGUE_INDEX: np.array([20]),
+            ASN.TONGUE_DIAMETER: np.array([2.0]),
+            ASN.LIPS: np.array([1.5]),
+        }
         return act
 
     generate_sound(dflt, action_fn, f"{__name__}.test_do_nothing.wav")
