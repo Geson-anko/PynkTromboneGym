@@ -8,6 +8,7 @@ import numpy as np
 import soundfile
 
 from pynktrombonegym import env
+from pynktrombonegym.spaces import ObservationSpaceNames as OSN
 
 target_sound_files = glob.glob("data/sample_target_sounds/*.wav")
 output_dir = "data/test_results/generated_sounds"
@@ -44,8 +45,8 @@ def generate_sound(environment: env.PynkTrombone, action_fn: Callable, file_name
 
         action = action_fn(environment)
         obs, _, _, _ = environment.step(action)
-        obss = env.ObservationSpace.from_dict(obs)
-        generated_waves.append(obss.generated_sound_wave)
+        generated_sound_wave = obs[OSN.GENERATED_SOUND_WAVE]
+        generated_waves.append(generated_sound_wave)
 
     generated_sound_wave = np.concatenate(generated_waves).astype(np.float32)
 

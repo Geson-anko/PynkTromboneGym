@@ -5,7 +5,7 @@ import numpy as np
 from gym import spaces
 
 from pynktrombonegym.env import PynkTrombone
-from pynktrombonegym.spaces import ObservationSpace
+from pynktrombonegym.spaces import ObservationSpaceNames as OSN
 from pynktrombonegym.spectrogram import calc_rfft_channel_num, calc_target_sound_spectrogram_length
 from pynktrombonegym.wrappers import log1p_mel_spectrogram as l1pms
 
@@ -30,7 +30,7 @@ def test__init__():
 def test_define_observation_space():
     dflt = l1pms.Log1pMelSpectrogram(PynkTrombone(target_sound_files))
     # dflt.define_observation_space() # called in __init__
-    obss = ObservationSpace.from_dict(dflt.observation_space)
+    obs = dflt.observation_space
 
     shape = (
         dflt.n_mels,
@@ -39,23 +39,22 @@ def test_define_observation_space():
         ),
     )
     space = spaces.Box(0.0, float("inf"), shape)
-    assert_space(obss.target_sound_spectrogram, space)
-    assert_space(obss.generated_sound_spectrogram, space)
-    sampled = dflt.observation_space.sample()
-    sampled_obs = ObservationSpace.from_dict(sampled)
-    assert sampled_obs.generated_sound_spectrogram.shape == space.shape
-    assert sampled_obs.generated_sound_spectrogram.dtype == space.dtype
-    assert sampled_obs.target_sound_spectrogram.shape == space.shape
-    assert sampled_obs.target_sound_spectrogram.dtype == space.dtype
+    assert_space(obs[OSN.TARGET_SOUND_SPECTROGRAM], space)
+    assert_space(obs[OSN.GENERATED_SOUND_SPECTROGRAM], space)
+    sampled_obs = dflt.observation_space.sample()
+    assert sampled_obs[OSN.GENERATED_SOUND_SPECTROGRAM].shape == space.shape
+    assert sampled_obs[OSN.GENERATED_SOUND_SPECTROGRAM].dtype == space.dtype
+    assert sampled_obs[OSN.TARGET_SOUND_SPECTROGRAM].shape == space.shape
+    assert sampled_obs[OSN.TARGET_SOUND_SPECTROGRAM].dtype == space.dtype
 
-    pure_obs = ObservationSpace.from_dict(dflt.env.observation_space)
-    assert_space(obss.target_sound_wave, pure_obs.target_sound_wave)
-    assert_space(obss.generated_sound_wave, pure_obs.generated_sound_wave)
-    assert_space(obss.frequency, pure_obs.frequency)
-    assert_space(obss.pitch_shift, pure_obs.pitch_shift)
-    assert_space(obss.tenseness, pure_obs.tenseness)
-    assert_space(obss.current_tract_diameters, pure_obs.current_tract_diameters)
-    assert_space(obss.nose_diameters, pure_obs.nose_diameters)
+    pure_obs = dflt.env.observation_space
+    assert_space(obs[OSN.TARGET_SOUND_WAVE], pure_obs[OSN.TARGET_SOUND_WAVE])
+    assert_space(obs[OSN.GENERATED_SOUND_WAVE], pure_obs[OSN.GENERATED_SOUND_WAVE])
+    assert_space(obs[OSN.FREQUENCY], pure_obs[OSN.FREQUENCY])
+    assert_space(obs[OSN.PITCH_SHIFT], pure_obs[OSN.PITCH_SHIFT])
+    assert_space(obs[OSN.TENSENESS], pure_obs[OSN.TENSENESS])
+    assert_space(obs[OSN.CURRENT_TRACT_DIAMETERS], pure_obs[OSN.CURRENT_TRACT_DIAMETERS])
+    assert_space(obs[OSN.NOSE_DIAMETERS], pure_obs[OSN.NOSE_DIAMETERS])
 
 
 def test_log1p_mel():
@@ -86,8 +85,7 @@ def test_log1p_mel():
 def test_observation():
     dflt = l1pms.Log1pMelSpectrogram(PynkTrombone(target_sound_files))
     obs = dflt.env.get_current_observation()
-    wrapped = dflt.observation(obs)
-    wrapped_obs = ObservationSpace.from_dict(wrapped)
+    wrapped_obs = dflt.observation(obs)
 
     shape = (
         dflt.n_mels,
@@ -95,5 +93,5 @@ def test_observation():
             dflt.env.generate_chunk, dflt.env.stft_window_size, dflt.env.stft_hop_length
         ),
     )
-    assert wrapped_obs.target_sound_spectrogram.shape == shape
-    assert wrapped_obs.generated_sound_spectrogram.shape == shape
+    assert wrapped_obs[OSN.TARGET_SOUND_SPECTROGRAM].shape == shape
+    assert wrapped_obs[OSN.GENERATED_SOUND_SPECTROGRAM].shape == shape

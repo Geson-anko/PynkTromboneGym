@@ -6,7 +6,7 @@ import numpy as np
 from gym import spaces
 
 from ..env import PynkTrombone
-from ..spaces import ObservationSpace
+from ..spaces import ObservationSpaceNames as OSN
 from ..spectrogram import calc_target_sound_spectrogram_length
 
 
@@ -40,7 +40,7 @@ class Log1pMelSpectrogram(gym.ObservationWrapper):
         This wrapper converts `target_sound_spectrogram` and
         `generated_sound_spectrogram` to log1p mel spectrogram.
         """
-        obss = ObservationSpace.from_dict(self.env.observation_space)
+        obs = self.env.observation_space
         shape = (
             self.n_mels,
             calc_target_sound_spectrogram_length(
@@ -48,10 +48,10 @@ class Log1pMelSpectrogram(gym.ObservationWrapper):
             ),
         )
         log1p_mel_space = spaces.Box(0.0, float("inf"), shape)
-        obss.target_sound_spectrogram = log1p_mel_space
-        obss.generated_sound_spectrogram = log1p_mel_space
+        obs[OSN.TARGET_SOUND_SPECTROGRAM] = log1p_mel_space
+        obs[OSN.GENERATED_SOUND_SPECTROGRAM] = log1p_mel_space
 
-        self.observation_space = spaces.Dict(obss.to_dict())
+        self.observation_space = obs
 
     def log1p_mel(self, spectrogram: np.ndarray) -> np.ndarray:
         """Convert to log 1p mel spectrogram.
@@ -66,7 +66,7 @@ class Log1pMelSpectrogram(gym.ObservationWrapper):
 
     def observation(self, observation):
         """Wrapps observation."""
-        obs = ObservationSpace.from_dict(observation)
-        obs.target_sound_spectrogram = self.log1p_mel(obs.target_sound_spectrogram)
-        obs.generated_sound_spectrogram = self.log1p_mel(obs.generated_sound_spectrogram)
-        return obs.to_dict()
+        obs = observation
+        obs[OSN.TARGET_SOUND_SPECTROGRAM] = self.log1p_mel(obs[OSN.TARGET_SOUND_SPECTROGRAM])
+        obs[OSN.GENERATED_SOUND_SPECTROGRAM] = self.log1p_mel(obs[OSN.GENERATED_SOUND_SPECTROGRAM])
+        return obs
