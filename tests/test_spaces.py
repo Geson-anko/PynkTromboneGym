@@ -27,6 +27,20 @@ def test_ObservationSpaceNames():
     assert name_cls.NOSE_DIAMETERS == "nose_diameters"
 
 
+def test_ActionSpaceNames():
+    name_cls = ptspaces.ActionSpaceNames
+    assert_space_names(name_cls)
+
+    assert name_cls.PITCH_SHIFT == "pitch_shift"
+    assert name_cls.TENSENESS == "tenseness"
+    assert name_cls.TRACHEA == "trachea"
+    assert name_cls.EPIGLOTTIS == "epiglottis"
+    assert name_cls.VELUM == "velum"
+    assert name_cls.TONGUE_INDEX == "tongue_index"
+    assert name_cls.TONGUE_DIAMETER == "tongue_diameter"
+    assert name_cls.LIPS == "lips"
+
+
 def test_BaseSpace():
     bs = ptspaces.BaseSpace()
 
