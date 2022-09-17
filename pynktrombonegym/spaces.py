@@ -16,6 +16,8 @@ class ObservationSpaceNames:
 
 
 class ActionSpaceNames:
+    """Key names of Action space."""
+
     PITCH_SHIFT = "pitch_shift"
     TENSENESS = "tenseness"
     TRACHEA = "trachea"
