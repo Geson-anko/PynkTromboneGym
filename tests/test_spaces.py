@@ -1,7 +1,3 @@
-from dataclasses import dataclass
-
-import numpy as np
-
 from pynktrombonegym import spaces as ptspaces
 
 
@@ -39,31 +35,3 @@ def test_ActionSpaceNames():
     assert name_cls.TONGUE_INDEX == "tongue_index"
     assert name_cls.TONGUE_DIAMETER == "tongue_diameter"
     assert name_cls.LIPS == "lips"
-
-
-def test_BaseSpace():
-    bs = ptspaces.BaseSpace()
-
-    d = bs.to_dict()
-    assert type(d) is dict
-    assert d == dict()
-    try:
-        ptspaces.BaseSpace.from_dict({"a": 0})
-        raise AssertionError
-    except TypeError:
-        pass
-
-    @dataclass
-    class Space(ptspaces.BaseSpace):
-        state1: float
-        state2: int
-        state3: str
-
-    o = Space(1.0, 2, "3")
-    assert o.to_dict() == {"state1": 1.0, "state2": 2, "state3": "3"}
-
-    d = {"state1": 0.0, "state2": 1, "state3": "2"}
-    o = Space.from_dict(d)
-    assert o.state1 == 0.0
-    assert o.state2 == 1
-    assert o.state3 == "2"
