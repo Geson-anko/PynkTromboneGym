@@ -3,9 +3,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass
-from typing import Any, Mapping
-
-import numpy as np
+from typing import Mapping
 
 
 class ObservationSpaceNames:
@@ -59,17 +57,3 @@ class BaseSpace:
             If there is a key not exist in memeber, raises TypeError.
         """
         return cls(**d)
-
-
-@dataclass
-class ActionSpace(BaseSpace):
-    """Defining action space."""
-
-    pitch_shift: np.ndarray | Any
-    tenseness: np.ndarray | Any
-    trachea: np.ndarray | Any
-    epiglottis: np.ndarray | Any
-    velum: np.ndarray | Any
-    tongue_index: np.ndarray | Any
-    tongue_diameter: np.ndarray | Any
-    lips: np.ndarray | Any
