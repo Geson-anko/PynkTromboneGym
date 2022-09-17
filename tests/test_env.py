@@ -115,14 +115,14 @@ def test_define_action_space():
     default = env.PynkTrombone(target_sound_files)
     acts = default.define_action_space()
 
-    assert_space(acts["pitch_shift"], spaces.Box(-1.0, 1.0))
-    assert_space(acts["tenseness"], spaces.Box(0.0, 1.0))
-    assert_space(acts["trachea"], spaces.Box(0, 3.5))
-    assert_space(acts["epiglottis"], spaces.Box(0, 3.5))
-    assert_space(acts["velum"], spaces.Box(0, 3.5))
-    assert_space(acts["tongue_index"], spaces.Box(12, 40, dtype=int))
-    assert_space(acts["tongue_diameter"], spaces.Box(0, 3.5))
-    assert_space(acts["lips"], spaces.Box(0, 1.5))
+    assert_space(acts[ASN.PITCH_SHIFT], spaces.Box(-1.0, 1.0))
+    assert_space(acts[ASN.TENSENESS], spaces.Box(0.0, 1.0))
+    assert_space(acts[ASN.TRACHEA], spaces.Box(0, 3.5))
+    assert_space(acts[ASN.EPIGLOTTIS], spaces.Box(0, 3.5))
+    assert_space(acts[ASN.VELUM], spaces.Box(0, 3.5))
+    assert_space(acts[ASN.TONGUE_INDEX], spaces.Box(12, 40, dtype=int))
+    assert_space(acts[ASN.TONGUE_DIAMETER], spaces.Box(0, 3.5))
+    assert_space(acts[ASN.LIPS], spaces.Box(0, 1.5))
 
 
 def test_define_observation_space():
