@@ -51,21 +51,6 @@ class BaseSpace:
 
 
 @dataclass
-class ObservationSpace(BaseSpace):
-    """Defining observation space."""
-
-    target_sound_wave: np.ndarray | Any
-    generated_sound_wave: np.ndarray | Any
-    target_sound_spectrogram: np.ndarray | Any
-    generated_sound_spectrogram: np.ndarray | Any
-    frequency: np.ndarray | Any
-    pitch_shift: np.ndarray | Any
-    tenseness: np.ndarray | Any
-    current_tract_diameters: np.ndarray | Any
-    nose_diameters: np.ndarray | Any
-
-
-@dataclass
 class ActionSpace(BaseSpace):
     """Defining action space."""
 
