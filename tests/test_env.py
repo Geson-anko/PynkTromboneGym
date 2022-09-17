@@ -8,6 +8,7 @@ from gym import spaces
 
 from pynktrombonegym import env
 from pynktrombonegym import spectrogram as spct
+from pynktrombonegym.spaces import ActionSpaceNames as ASN
 from pynktrombonegym.spaces import ObservationSpaceNames as OSN
 
 target_sound_files = glob.glob("data/sample_target_sounds/*.wav")
@@ -61,20 +62,10 @@ def test__init__():
     assert type(obss) is spaces.Dict
     assert type(acts) is spaces.Dict
 
-    actk = list(acts.keys())
-
     assert rr == (-float("inf"), 0.0)
 
     assert_dict_space_key(obss, OSN)
-
-    assert "pitch_shift" in actk
-    assert "tenseness" in actk
-    assert "trachea" in actk
-    assert "epiglottis" in actk
-    assert "velum" in actk
-    assert "tongue_index" in actk
-    assert "tongue_diameter" in actk
-    assert "lips" in actk
+    assert_dict_space_key(acts, ASN)
 
 
 def test_property_target_sound_wave():
@@ -305,18 +296,15 @@ def test_step():
     act = dflt.action_space.sample()
     obs, reward, done, info = dflt.step(act)
 
-    acts = env.ActionSpace.from_dict(act)
-    # obss = env.ObservationSpace.from_dict(obs)
-
     voc = dflt.voc
-    assert voc.frequency == dflt.default_frequency * (2**acts.pitch_shift)
-    assert voc.tenseness == acts.tenseness
-    assert abs(voc.tract.trachea - acts.trachea) < 1e-10
-    assert abs(voc.tract.epiglottis - acts.epiglottis) < 1e-10
-    assert abs(voc.velum - acts.velum) < 1e-10
+    assert voc.frequency == dflt.default_frequency * (2 ** act[ASN.PITCH_SHIFT].item())
+    assert voc.tenseness == act[ASN.TENSENESS].item()
+    assert abs(voc.tract.trachea - act[ASN.TRACHEA].item()) < 1e-10
+    assert abs(voc.tract.epiglottis - act[ASN.EPIGLOTTIS].item()) < 1e-10
+    assert abs(voc.velum - act[ASN.VELUM].item()) < 1e-10
     # Missing assertion of tongue_index
     # Missing assertion of tongue_diameter
-    assert abs(voc.tract.lips - acts.lips) < 1e-10
+    assert abs(voc.tract.lips - act[ASN.LIPS]) < 1e-10
     assert dflt.current_step == 1
 
     ### Step until done.

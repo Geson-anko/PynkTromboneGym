@@ -67,26 +67,3 @@ def test_BaseSpace():
     assert o.state1 == 0.0
     assert o.state2 == 1
     assert o.state3 == "2"
-
-
-def test_ActionSpace():
-    cls = ptspaces.ActionSpace
-
-    act = cls(
-        np.array([0.0]),
-        np.array([0.1]),
-        np.array([0.2]),
-        np.array([0.3]),
-        np.array([0.4]),
-        np.array([5]),
-        np.array([0.6]),
-        np.array([0.7]),
-    )
-    assert act.pitch_shift.item() == 0.0
-    assert act.tenseness.item() == 0.1
-    assert act.trachea.item() == 0.2
-    assert act.epiglottis.item() == 0.3
-    assert act.velum.item() == 0.4
-    assert act.tongue_index.item() == 5
-    assert act.tongue_diameter.item() == 0.6
-    assert act.lips.item() == 0.7
