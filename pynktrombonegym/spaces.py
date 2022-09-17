@@ -1,9 +1,4 @@
 """Definitions of Observation and Action space."""
-from __future__ import annotations
-
-import warnings
-from dataclasses import dataclass
-from typing import Mapping
 
 
 class ObservationSpaceNames:
@@ -29,31 +24,3 @@ class ActionSpaceNames:
     TONGUE_INDEX = "tongue_index"
     TONGUE_DIAMETER = "tongue_diameter"
     LIPS = "lips"
-
-
-@dataclass
-class BaseSpace:
-    """The BaseSpace for defining Observation and Action space."""
-
-    def __post_init__(self):
-        warnings.warn("Dataclass space defition is not recommended and will be removed in the future.", FutureWarning)
-
-    def to_dict(self) -> dict:
-        """Return class members as dict.
-
-        Returns:
-            member dictionary (dict): Dictionary of member values.
-        """
-        return self.__dict__
-
-    @classmethod
-    def from_dict(cls, d: Mapping):
-        """Create space from dict like object.
-
-        Returns:
-            Defined space (BaseSpace): Defined space object.
-
-        Raises:
-            If there is a key not exist in memeber, raises TypeError.
-        """
-        return cls(**d)
