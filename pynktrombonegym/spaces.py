@@ -22,6 +22,17 @@ class ObservationSpaceNames:
     NOSE_DIAMETERS = "nose_diameters"
 
 
+class ActionSpaceNames:
+    PITCH_SHIFT = "pitch_shift"
+    TENSENESS = "tenseness"
+    TRACHEA = "trachea"
+    EPIGLOTTIS = "epiglottis"
+    VELUM = "velum"
+    TONGUE_INDEX = "tongue_index"
+    TONGUE_DIAMETER = "tongue_diameter"
+    LIPS = "lips"
+
+
 @dataclass
 class BaseSpace:
     """The BaseSpace for defining Observation and Action space."""
