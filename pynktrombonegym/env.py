@@ -10,7 +10,7 @@ from gym import spaces
 from pynktrombone import Voc
 
 from . import spectrogram as spct
-from .spaces import ActionSpace
+from .spaces import ActionSpaceNames as ASN
 from .spaces import ObservationSpaceNames as OSN
 
 RenderFrame = TypeVar("RenderFrame", plt.Figure, np.ndarray)
@@ -108,16 +108,16 @@ class PynkTrombone(gym.Env):
             lips
         """
         action_space = spaces.Dict(
-            ActionSpace(
-                spaces.Box(-1.0, 1.0),
-                spaces.Box(0.0, 1.0),
-                spaces.Box(0, 3.5),
-                spaces.Box(0, 3.5),
-                spaces.Box(0, 3.5),
-                spaces.Box(12, 40, dtype=int),
-                spaces.Box(0, 3.5),
-                spaces.Box(0, 1.5),
-            ).to_dict()
+            {
+                ASN.PITCH_SHIFT: spaces.Box(-1.0, 1.0),
+                ASN.TENSENESS: spaces.Box(0.0, 1.0),
+                ASN.TRACHEA: spaces.Box(0, 3.5),
+                ASN.EPIGLOTTIS: spaces.Box(0, 3.5),
+                ASN.VELUM: spaces.Box(0, 3.5),
+                ASN.TONGUE_INDEX: spaces.Box(12, 40, dtype=int),
+                ASN.TONGUE_DIAMETER: spaces.Box(0, 3.5),
+                ASN.LIPS: spaces.Box(0, 1.5),
+            }
         )
         return action_space
 
@@ -306,16 +306,24 @@ class PynkTrombone(gym.Env):
 
         info: Dict[Any, Any] = dict()
 
-        acts = ActionSpace.from_dict(action)
-        self.voc.frequency = self.default_frequency * (2**acts.pitch_shift)
-        self.voc.tenseness = acts.tenseness
+        pitch_shift: np.ndarray = action[ASN.PITCH_SHIFT]
+        tenseness: np.ndarray = action[ASN.TENSENESS]
+        trachea: np.ndarray = action[ASN.TRACHEA]
+        epiglottis: np.ndarray = action[ASN.EPIGLOTTIS]
+        velum: np.ndarray = action[ASN.VELUM]
+        tongue_index: np.ndarray = action[ASN.TONGUE_INDEX]
+        tongue_diameter: np.ndarray = action[ASN.TONGUE_DIAMETER]
+        lips: np.ndarray = action[ASN.LIPS]
+
+        self.voc.frequency = self.default_frequency * (2 ** pitch_shift.item())
+        self.voc.tenseness = tenseness.item()
         self.voc.set_tract_parameters(
-            acts.trachea.item(),
-            acts.epiglottis.item(),
-            acts.velum.item(),
-            acts.tongue_index.item(),
-            acts.tongue_diameter.item(),
-            acts.lips.item(),
+            trachea.item(),
+            epiglottis.item(),
+            velum.item(),
+            tongue_index.item(),
+            tongue_diameter.item(),
+            lips.item(),
         )
 
         generated_wave = self.voc.play_chunk()
