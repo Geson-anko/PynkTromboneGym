@@ -1,11 +1,14 @@
 import math
+from collections import OrderedDict
 
+import numpy as np
 from gym import spaces
 
 from pynktrombonegym.env import PynkTrombone
+from pynktrombonegym.spaces import ActionSpaceNames as ASN
 from pynktrombonegym.wrappers.action_by_acceleration import ActionByAcceleration
 
-from ..test_env import assert_space, target_sound_files
+from ..test_env import assert_dict_space_key, assert_space, target_sound_files
 
 
 def test__init__():
@@ -53,3 +56,37 @@ def test_define_action_space():
     wrapped_acts = wrapped.action_space
     for k in base_acts.keys():
         assert_space(wrapped_acts[k], wrapped.convert_space_to_acceleration(base_acts[k]))  # type: ignore
+
+
+def initialize_state():
+    base = PynkTrombone(target_sound_files)
+    action_scaler = base.generate_chunk / base.sample_rate
+    initial_pos = OrderedDict(
+        {
+            ASN.PITCH_SHIFT: np.array([0.0]),
+            ASN.TENSENESS: np.array([0.0]),
+            ASN.TRACHEA: np.array([0.6]),
+            ASN.EPIGLOTTIS: np.array([1.1]),
+            ASN.VELUM: np.array([0.01]),
+            ASN.TONGUE_INDEX: np.array([20]),
+            ASN.TONGUE_DIAMETER: np.array([2.0]),
+            ASN.LIPS: np.array([1.5]),
+        }
+    )
+    assert_dict_space_key(initial_pos, ASN)
+    wrapped = ActionByAcceleration(base, action_scaler, initial_pos)
+
+    # called at __init__
+    assert_dict_space_key(wrapped.velocities, ASN)
+    assert_dict_space_key(wrapped.positions, ASN)
+
+    assert initial_pos is wrapped.initial_pos
+    assert initial_pos is not wrapped.positions
+
+    velocities = wrapped.velocities
+    for k in initial_pos.keys():
+        assert np.all(velocities[k] == 0.0)
+
+    # without initial pos
+    wrapped = ActionByAcceleration(base, action_scaler)
+    assert_dict_space_key(wrapped.positions, ASN)

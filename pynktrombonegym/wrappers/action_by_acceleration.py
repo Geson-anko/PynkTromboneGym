@@ -1,5 +1,6 @@
+import copy
 from collections import OrderedDict
-from typing import Any, Mapping, Optional
+from typing import Any, Dict, Optional
 
 import gym
 import numpy as np
@@ -16,15 +17,15 @@ class ActionByAcceleration(gym.ActionWrapper):
     and learning will be more easier.
     """
 
-    velocities: Mapping
-    positions: Mapping
+    velocities: Dict
+    positions: Dict
     position_space: spaces.Dict
 
     def __init__(
         self,
         env: gym.Env,
         action_scaler: float,
-        initial_pos: Optional[Mapping] = None,
+        initial_pos: Optional[Dict] = None,
         new_step_api: bool = False,
     ) -> None:
         """Constuct this wrapper.
@@ -45,6 +46,8 @@ class ActionByAcceleration(gym.ActionWrapper):
         self.initial_pos = initial_pos
 
         self.action_space = self.define_action_space()
+
+        self.initialize_state()
 
     @staticmethod
     def convert_space_to_acceleration(box_space: spaces.Box) -> spaces.Box:
@@ -82,3 +85,24 @@ class ActionByAcceleration(gym.ActionWrapper):
             d[k] = v
 
         return spaces.Dict(d)
+
+    def initialize_state(self) -> None:
+        """Initialize this state.
+        This method called at :meth:`__init__` and :meth:`reset`.
+
+        :attr:`velocities` are initialized with 0.
+        If :attr:`initial_pos` is provided, :attr:`positions` are initialize with it.
+        Else, initialized with random value.
+        """
+        if self.initial_pos is None:
+            initial_pos = self.position_space.sample()
+        else:
+            initial_pos = copy.deepcopy(self.initial_pos)
+
+        vel = OrderedDict()
+        for (pos_key, pos_item) in copy.deepcopy(initial_pos).items():
+            pos_item[:] = 0.0
+            vel[pos_key] = pos_item
+
+        self.velocities = vel
+        self.positions = initial_pos
