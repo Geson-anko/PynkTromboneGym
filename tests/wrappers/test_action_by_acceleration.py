@@ -42,3 +42,14 @@ def test_convert_space_to_acceleration():
     # Gym API Error
     # assert_space(f(spaces.Box(math.inf, math.inf)), spaces.Box(0.0, 0.0))
     # Box(math.inf, math.inf) -> Box(-inf, inf, (1,), float32) !!!!!!
+
+
+def test_define_action_space():
+    base = PynkTrombone(target_sound_files)
+
+    action_scaler = base.generate_chunk / base.sample_rate
+    wrapped = ActionByAcceleration(base, action_scaler)
+    base_acts = base.action_space
+    wrapped_acts = wrapped.action_space
+    for k in base_acts.keys():
+        assert_space(wrapped_acts[k], wrapped.convert_space_to_acceleration(base_acts[k]))  # type: ignore
