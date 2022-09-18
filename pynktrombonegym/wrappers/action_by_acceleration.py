@@ -51,6 +51,12 @@ class ActionByAcceleration(gym.ActionWrapper):
         """Convert base action space to acceleration action space.
         Modify input `gym.spaces.Box` space so that one-half of
         the value range is 0.
+
+        Args:
+            box_spaces (spaces.Box): Box space of action.
+
+        Returns:
+            space (spaces.Box): Converted Box space.
         """
         rng = (box_space.high - box_space.low) / 2
         is_nan = np.isnan(rng)
