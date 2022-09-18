@@ -45,3 +45,19 @@ class ActionByAcceleration(gym.ActionWrapper):
         self.action_scaler = action_scaler
         self.position_space = env.action_space
         self.initial_pos = initial_pos
+
+    @staticmethod
+    def convert_space_to_acceleration(box_space: spaces.Box) -> spaces.Box:
+        """Convert base action space to acceleration action space.
+        Modify input `gym.spaces.Box` space so that one-half of
+        the value range is 0.
+        """
+        rng = (box_space.high - box_space.low) / 2
+        is_nan = np.isnan(rng)
+        is_equal = box_space.high == box_space.low
+        if np.nan in is_nan:
+            rng[is_nan] = np.inf
+            rng[np.logical_and(is_nan, is_equal)] == 0
+
+        space = spaces.Box(-rng, rng, box_space.shape, box_space.dtype, box_space._np_random)  # type: ignore
+        return space
