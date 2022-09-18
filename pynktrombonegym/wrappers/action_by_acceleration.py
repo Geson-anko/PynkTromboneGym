@@ -5,8 +5,6 @@ import gym
 import numpy as np
 from gym import spaces
 
-from ..spaces import ActionSpaceNames as ASN
-
 
 class ActionByAcceleration(gym.ActionWrapper):
     """Action Wrapper of PynkTrombone.
@@ -20,7 +18,7 @@ class ActionByAcceleration(gym.ActionWrapper):
 
     velocities: Mapping
     positions: Mapping
-    position_space: spaces.Space
+    position_space: spaces.Dict
 
     def __init__(
         self,
@@ -43,8 +41,10 @@ class ActionByAcceleration(gym.ActionWrapper):
 
         super().__init__(env, new_step_api)
         self.action_scaler = action_scaler
-        self.position_space = env.action_space
+        self.position_space = env.action_space  # type: ignore
         self.initial_pos = initial_pos
+
+        self.action_space = self.define_action_space()
 
     @staticmethod
     def convert_space_to_acceleration(box_space: spaces.Box) -> spaces.Box:
@@ -67,3 +67,18 @@ class ActionByAcceleration(gym.ActionWrapper):
 
         space = spaces.Box(-rng, rng, box_space.shape, box_space.dtype, box_space._np_random)  # type: ignore
         return space
+
+    def define_action_space(self) -> spaces.Dict:
+        """Define action space of this wrapper
+        if action space is `gym.spaces.Box`, convert it to acceleration space.
+
+        Returns:
+            action_space (spaces.Dict): Convertd action spaces.
+        """
+        d = dict()
+        for (k, v) in self.position_space.items():
+            if isinstance(v, spaces.Box):
+                v = self.convert_space_to_acceleration(v)
+            d[k] = v
+
+        return spaces.Dict(d)
