@@ -120,7 +120,7 @@ def test_define_action_space():
     assert_space(acts[ASN.TRACHEA], spaces.Box(0, 3.5))
     assert_space(acts[ASN.EPIGLOTTIS], spaces.Box(0, 3.5))
     assert_space(acts[ASN.VELUM], spaces.Box(0, 3.5))
-    assert_space(acts[ASN.TONGUE_INDEX], spaces.Box(12, 40, dtype=int))
+    assert_space(acts[ASN.TONGUE_INDEX], spaces.Box(12, 40, dtype=np.float32))
     assert_space(acts[ASN.TONGUE_DIAMETER], spaces.Box(0, 3.5))
     assert_space(acts[ASN.LIPS], spaces.Box(0, 1.5))
 
