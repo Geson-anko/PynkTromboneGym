@@ -111,3 +111,33 @@ class ActionByAcceleration(gym.ActionWrapper):
         """Initialize state"""
         self.initialize_state()
         return super().reset(**kwargs)
+
+    def action(self, action: Dict):
+        """Convert acceleration action to positions.
+        Note: :attr:`velocities` and :attr:`positions` are modified in this method.
+
+        Args:
+            action (Dict[str, np.ndarray]): acceleration action.
+
+        Returns:
+            positions (Dict): position action.
+        """
+
+        out_action = copy.deepcopy(action)
+        for k in action.keys():
+            act = action[k] * self.action_scaler
+            vel = self.velocities[k]
+            pos = self.positions[k]
+            pos_space: spaces.Box = self.position_space[k]  # type: ignore
+
+            vel = vel + act
+            pos = pos + vel
+            is_limit = np.logical_or(pos < pos_space.low, pos_space.high < pos)
+            vel[is_limit] = 0
+            pos = np.clip(pos, pos_space.low, pos_space.high)
+
+            self.velocities[k] = vel
+            self.positions[k] = pos
+            out_action[k] = pos
+
+        return out_action
