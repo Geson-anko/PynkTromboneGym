@@ -25,6 +25,19 @@ initial_pos = OrderedDict(
 )
 assert_dict_space_key(initial_pos, ASN)
 
+example_action = OrderedDict(
+    {
+        ASN.PITCH_SHIFT: np.array([0.1]),
+        ASN.TENSENESS: np.array([0.2]),
+        ASN.TRACHEA: np.array([-0.3]),
+        ASN.EPIGLOTTIS: np.array([-1.1]),
+        ASN.VELUM: np.array([-0.1]),
+        ASN.TONGUE_INDEX: np.array([-2.0]),
+        ASN.TONGUE_DIAMETER: np.array([-1.0]),
+        ASN.LIPS: np.array([0.2]),
+    }
+)
+
 
 def test__init__():
     base = PynkTrombone(target_sound_files)
@@ -141,3 +154,16 @@ def test_action():
         assert np.all(vel == current_vels[k])
         cp = current_poses[k]
         assert np.all(np.logical_and(cp >= pos_space.low, cp <= pos_space.high))
+
+    action_scaler = 0.5
+    wrapped = ActionByAcceleration(base, action_scaler, copy.deepcopy(initial_pos))
+
+    out_pos = wrapped.action(example_action)
+    assert abs(out_pos[ASN.PITCH_SHIFT].item() - 0.05) < 1e-8
+    assert abs(out_pos[ASN.TENSENESS].item() - 0.1) < 1e-8
+    assert abs(out_pos[ASN.TRACHEA].item() - 0.45) < 1e-8
+    assert abs(out_pos[ASN.EPIGLOTTIS].item() - 0.55) < 1e-8
+    assert abs(out_pos[ASN.VELUM].item() - 0.0) < 1e-8
+    assert abs(out_pos[ASN.TONGUE_INDEX].item() - 19.0) < 1e-8
+    assert abs(out_pos[ASN.TONGUE_DIAMETER].item() - 1.5) < 1e-8
+    assert abs(out_pos[ASN.LIPS].item() - 1.5) < 1e-8
