@@ -1,5 +1,6 @@
 import copy
 from collections import OrderedDict
+from collections.abc import Iterable
 from typing import Any, Dict, Optional, Tuple, Union
 
 import gym
@@ -26,6 +27,7 @@ class ActionByAcceleration(gym.ActionWrapper):
         env: gym.Env,
         action_scaler: float,
         initial_pos: Optional[Dict] = None,
+        ignore_actions: Optional[Iterable[str]] = None,
         new_step_api: bool = False,
     ) -> None:
         """Constuct this wrapper.
@@ -37,6 +39,8 @@ class ActionByAcceleration(gym.ActionWrapper):
                 be used because physical reason.
             initial_pos (Optinal[OrderedDict[str, np.ndarray]]): Initial position (action) of
                 base environment. If None, this value is sampled randomly.
+            ignore_actions (Optional[Iterable[str]]): The action names that do not convert
+                to acceleration action.
             new_step_api (bool): See OpenAI Gym API.
         """
 
@@ -44,6 +48,10 @@ class ActionByAcceleration(gym.ActionWrapper):
         self.action_scaler = action_scaler
         self.position_space = env.action_space  # type: ignore
         self.initial_pos = initial_pos
+
+        if ignore_actions is None:
+            ignore_actions = set()
+        self.ignore_actions = set(ignore_actions)
 
         self.action_space = self.define_action_space()
 
@@ -80,7 +88,7 @@ class ActionByAcceleration(gym.ActionWrapper):
         """
         d = dict()
         for (k, v) in self.position_space.items():
-            if isinstance(v, spaces.Box):
+            if k not in self.ignore_actions:
                 v = self.convert_space_to_acceleration(v)
             d[k] = v
 
@@ -125,19 +133,20 @@ class ActionByAcceleration(gym.ActionWrapper):
 
         out_action = copy.deepcopy(action)
         for k in action.keys():
-            act = action[k] * self.action_scaler
-            vel = self.velocities[k]
-            pos = self.positions[k]
-            pos_space: spaces.Box = self.position_space[k]  # type: ignore
+            if k not in self.ignore_actions:
+                act = action[k] * self.action_scaler
+                vel = self.velocities[k]
+                pos = self.positions[k]
+                pos_space: spaces.Box = self.position_space[k]  # type: ignore
 
-            vel = vel + act
-            pos = pos + vel
-            is_limit = np.logical_or(pos < pos_space.low, pos_space.high < pos)
-            vel[is_limit] = 0
-            pos = np.clip(pos, pos_space.low, pos_space.high)
+                vel = vel + act
+                pos = pos + vel
+                is_limit = np.logical_or(pos < pos_space.low, pos_space.high < pos)
+                vel[is_limit] = 0
+                pos = np.clip(pos, pos_space.low, pos_space.high)
 
-            self.velocities[k] = vel
-            self.positions[k] = pos
-            out_action[k] = pos
+                self.velocities[k] = vel
+                self.positions[k] = pos
+                out_action[k] = pos
 
         return out_action
