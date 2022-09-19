@@ -1,6 +1,6 @@
 import copy
 from collections import OrderedDict
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple, Union
 
 import gym
 import numpy as np
@@ -106,3 +106,8 @@ class ActionByAcceleration(gym.ActionWrapper):
 
         self.velocities = vel
         self.positions = initial_pos
+
+    def reset(self, **kwargs) -> Union[Any, Tuple[Any, dict]]:
+        """Initialize state"""
+        self.initialize_state()
+        return super().reset(**kwargs)

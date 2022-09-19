@@ -90,3 +90,19 @@ def initialize_state():
     # without initial pos
     wrapped = ActionByAcceleration(base, action_scaler)
     assert_dict_space_key(wrapped.positions, ASN)
+
+
+def test_reset():
+    base = PynkTrombone(target_sound_files)
+    action_scaler = base.generate_chunk / base.sample_rate
+    wrapped = ActionByAcceleration(base, action_scaler)
+
+    pos0 = wrapped.positions
+    vel0 = wrapped.velocities
+
+    wrapped.reset()
+    pos1 = wrapped.positions
+    vel1 = wrapped.velocities
+
+    assert pos0 is not pos1
+    assert vel0 is not vel1
