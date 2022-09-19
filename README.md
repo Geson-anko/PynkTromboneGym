@@ -79,7 +79,8 @@ stftによって生成されたスペクトログラムをメル周波数スペ�
     - velum  
         Range: [0, 3.5]  
     - tongue_index  
-        Range: [12, 40]
+        Range: [12.0, 40.0]  
+        Note: この値はfloat型です。詳しくは[`PynkTrombone`の実装を参照ください](https://github.com/Geson-anko/pynktrombone/blob/master/pynktrombone/voc.py#L201)
     - tongue_diameter  
         Range: [0, 3.5]
     - lips  
