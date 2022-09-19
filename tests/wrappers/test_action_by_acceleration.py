@@ -48,12 +48,14 @@ def test__init__():
     assert wrapped.action_scaler == action_scaler
     assert wrapped.position_space is base.action_space
     assert wrapped.initial_pos is None
+    assert wrapped.ignore_actions == set()
 
     init_act = base.action_space.sample()
     action_scaler = base.generate_chunk / base.sample_rate
-    wrapped = ActionByAcceleration(base, action_scaler, initial_pos=init_act)
+    wrapped = ActionByAcceleration(base, action_scaler, initial_pos=init_act, ignore_actions=[ASN.TONGUE_INDEX])
     assert wrapped.action_scaler == action_scaler
     assert wrapped.initial_pos is init_act
+    assert wrapped.ignore_actions == set([ASN.TONGUE_INDEX])
 
 
 def test_convert_space_to_acceleration():
@@ -84,6 +86,15 @@ def test_define_action_space():
     wrapped_acts = wrapped.action_space
     for k in base_acts.keys():
         assert_space(wrapped_acts[k], wrapped.convert_space_to_acceleration(base_acts[k]))  # type: ignore
+
+    ignore_actions = set([ASN.TONGUE_DIAMETER, ASN.TONGUE_INDEX])
+    wrapped = ActionByAcceleration(base, action_scaler, ignore_actions=ignore_actions)
+    wrapped_acts = wrapped.action_space
+    for k in base_acts.keys():
+        if k not in ignore_actions:
+            assert_space(wrapped_acts[k], wrapped.convert_space_to_acceleration(base_acts[k]))  # type: ignore
+        else:
+            assert_space(wrapped_acts[k], base_acts[k])  # type: ignore
 
 
 def initialize_state():
@@ -167,3 +178,9 @@ def test_action():
     assert abs(out_pos[ASN.TONGUE_INDEX].item() - 19.0) < 1e-8
     assert abs(out_pos[ASN.TONGUE_DIAMETER].item() - 1.5) < 1e-8
     assert abs(out_pos[ASN.LIPS].item() - 1.5) < 1e-8
+
+    ignore_actions = set([ASN.EPIGLOTTIS, ASN.PITCH_SHIFT])
+    wrapped = ActionByAcceleration(base, action_scaler, copy.deepcopy(initial_pos), ignore_actions)
+    out_pos = wrapped.action(example_action)
+    assert abs(out_pos[ASN.EPIGLOTTIS].item() + 1.1) < 1e-8
+    assert abs(out_pos[ASN.PITCH_SHIFT].item() - 0.1) < 1e-8
