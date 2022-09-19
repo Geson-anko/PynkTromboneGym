@@ -10,6 +10,7 @@ from pynktrombonegym.spaces import ActionSpaceNames as ASN
 from pynktrombonegym.wrappers.action_by_acceleration import ActionByAcceleration
 
 from ..test_env import assert_dict_space_key, assert_space, target_sound_files
+from ..test_generation import generate_sound
 
 initial_pos = OrderedDict(
     {
@@ -184,3 +185,14 @@ def test_action():
     out_pos = wrapped.action(example_action)
     assert abs(out_pos[ASN.EPIGLOTTIS].item() + 1.1) < 1e-8
     assert abs(out_pos[ASN.PITCH_SHIFT].item() - 0.1) < 1e-8
+
+
+def test_generate_randomly():
+    base = PynkTrombone(target_sound_files)
+    action_scaler = base.generate_chunk / base.sample_rate
+    wrapped = ActionByAcceleration(base, action_scaler, copy.deepcopy(initial_pos))
+
+    def action_fn(e: ActionByAcceleration) -> dict:
+        return e.action_space.sample()
+
+    generate_sound(wrapped, action_fn, f"{__name__}.test_generate_randomly.wav", base.generate_chunk, base.sample_rate)
