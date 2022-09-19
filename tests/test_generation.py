@@ -4,6 +4,7 @@ import math
 import os
 from typing import Callable, Mapping
 
+import gym
 import numpy as np
 import soundfile
 
@@ -19,7 +20,7 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
 
-def generate_sound(environment: env.PynkTrombone, action_fn: Callable, file_name: str) -> None:
+def generate_sound(environment: gym.Env, action_fn: Callable, file_name: str, generate_chunk: int, sample_rate) -> None:
     """Generate sound wave with environment and action_fn
 
     Args:
@@ -37,22 +38,23 @@ def generate_sound(environment: env.PynkTrombone, action_fn: Callable, file_name
         wave (np.ndarray): Generated wave. 1d array.
     """
 
-    roop_num = math.ceil(sound_seconds / (environment.generate_chunk / environment.sample_rate))
+    roop_num = math.ceil(sound_seconds / (generate_chunk / sample_rate))
     generated_waves = []
     environment.reset()
+    done = False
     for _ in range(roop_num):
-        if environment.done:
+        if done:
             environment.reset()
 
         action = action_fn(environment)
-        obs, _, _, _ = environment.step(action)
+        obs, _, done, _ = environment.step(action)  # type: ignore
         generated_sound_wave = obs[OSN.GENERATED_SOUND_WAVE]
         generated_waves.append(generated_sound_wave)
 
     generated_sound_wave = np.concatenate(generated_waves).astype(np.float32)
 
     path = os.path.join(output_dir, file_name)
-    soundfile.write(path, generated_sound_wave, environment.sample_rate)
+    soundfile.write(path, generated_sound_wave, sample_rate)
 
 
 def test_do_nothing():
@@ -72,7 +74,7 @@ def test_do_nothing():
         }
         return act
 
-    generate_sound(dflt, action_fn, f"{__name__}.test_do_nothing.wav")
+    generate_sound(dflt, action_fn, f"{__name__}.test_do_nothing.wav", dflt.generate_chunk, dflt.sample_rate)
 
 
 def test_randomly():
@@ -81,4 +83,4 @@ def test_randomly():
     def action_fn(e: env.PynkTrombone) -> Mapping:
         return e.action_space.sample()
 
-    generate_sound(dflt, action_fn, f"{__name__}.test_randomly.wav")
+    generate_sound(dflt, action_fn, f"{__name__}.test_randomly.wav", dflt.generate_chunk, dflt.sample_rate)
