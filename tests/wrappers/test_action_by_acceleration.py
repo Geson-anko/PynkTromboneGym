@@ -11,6 +11,20 @@ from pynktrombonegym.wrappers.action_by_acceleration import ActionByAcceleration
 
 from ..test_env import assert_dict_space_key, assert_space, target_sound_files
 
+initial_pos = OrderedDict(
+    {
+        ASN.PITCH_SHIFT: np.array([0.0]),
+        ASN.TENSENESS: np.array([0.0]),
+        ASN.TRACHEA: np.array([0.6]),
+        ASN.EPIGLOTTIS: np.array([1.1]),
+        ASN.VELUM: np.array([0.01]),
+        ASN.TONGUE_INDEX: np.array([20]),
+        ASN.TONGUE_DIAMETER: np.array([2.0]),
+        ASN.LIPS: np.array([1.5]),
+    }
+)
+assert_dict_space_key(initial_pos, ASN)
+
 
 def test__init__():
     base = PynkTrombone(target_sound_files)
@@ -62,20 +76,7 @@ def test_define_action_space():
 def initialize_state():
     base = PynkTrombone(target_sound_files)
     action_scaler = base.generate_chunk / base.sample_rate
-    initial_pos = OrderedDict(
-        {
-            ASN.PITCH_SHIFT: np.array([0.0]),
-            ASN.TENSENESS: np.array([0.0]),
-            ASN.TRACHEA: np.array([0.6]),
-            ASN.EPIGLOTTIS: np.array([1.1]),
-            ASN.VELUM: np.array([0.01]),
-            ASN.TONGUE_INDEX: np.array([20]),
-            ASN.TONGUE_DIAMETER: np.array([2.0]),
-            ASN.LIPS: np.array([1.5]),
-        }
-    )
-    assert_dict_space_key(initial_pos, ASN)
-    wrapped = ActionByAcceleration(base, action_scaler, initial_pos)
+    wrapped = ActionByAcceleration(base, action_scaler, copy.deepcopy(initial_pos))
 
     # called at __init__
     assert_dict_space_key(wrapped.velocities, ASN)
