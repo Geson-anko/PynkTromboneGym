@@ -114,7 +114,7 @@ class PynkTrombone(gym.Env):
                 ASN.TRACHEA: spaces.Box(0, 3.5),
                 ASN.EPIGLOTTIS: spaces.Box(0, 3.5),
                 ASN.VELUM: spaces.Box(0, 3.5),
-                ASN.TONGUE_INDEX: spaces.Box(12, 40, dtype=np.float32), # Float type is correct.
+                ASN.TONGUE_INDEX: spaces.Box(12, 40, dtype=np.float32),  # Float type is correct.
                 ASN.TONGUE_DIAMETER: spaces.Box(0, 3.5),
                 ASN.LIPS: spaces.Box(0, 1.5),
             }
