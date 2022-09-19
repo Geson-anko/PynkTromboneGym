@@ -1,3 +1,4 @@
+import copy
 import math
 from collections import OrderedDict
 
@@ -106,3 +107,36 @@ def test_reset():
 
     assert pos0 is not pos1
     assert vel0 is not vel1
+
+
+def test_action():
+    base = PynkTrombone(target_sound_files)
+    action_scaler = 1.0
+    wrapped = ActionByAcceleration(base, action_scaler)
+
+    initial_poses = copy.deepcopy(wrapped.positions)
+    initial_vels = copy.deepcopy(wrapped.velocities)
+    action = wrapped.action_space.sample()
+
+    out_pos = wrapped.action(action)
+    current_vels = wrapped.velocities
+    current_poses = wrapped.positions
+
+    assert out_pos is not action
+
+    for k in action.keys():
+        act = action[k] * action_scaler
+        vel = initial_vels[k]
+        pos = initial_poses[k]
+        pos_space: spaces.Box = wrapped.position_space[k]  # type: ignore
+
+        vel += act
+        pos += vel
+        is_limit = np.logical_or(pos < pos_space.low, pos_space.high < pos)
+        vel[is_limit] = 0
+        pos = np.clip(pos, pos_space.low, pos_space.high)
+
+        assert np.all(pos == current_poses[k])
+        assert np.all(vel == current_vels[k])
+        cp = current_poses[k]
+        assert np.all(np.logical_and(cp >= pos_space.low, cp <= pos_space.high))
