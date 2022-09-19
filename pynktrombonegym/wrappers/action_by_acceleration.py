@@ -112,7 +112,7 @@ class ActionByAcceleration(gym.ActionWrapper):
         self.initialize_state()
         return super().reset(**kwargs)
 
-    def action(self, action: Dict):
+    def action(self, action: Dict) -> Dict:
         """Convert acceleration action to positions.
         Note: :attr:`velocities` and :attr:`positions` are modified in this method.
 
