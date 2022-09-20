@@ -6,6 +6,7 @@ from .test_env import target_sound_files
 
 sound_file_1sec = "data/1sec.wav"
 
+
 def test_calc_rfft_channel_num():
     f = spct.calc_rfft_channel_num
     assert f(1024) == 513
