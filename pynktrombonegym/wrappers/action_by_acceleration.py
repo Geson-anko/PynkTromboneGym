@@ -92,7 +92,7 @@ class ActionByAcceleration(gym.ActionWrapper):
 
     def define_action_space(self) -> spaces.Dict:
         """Define action space of this wrapper
-        if action space is `gym.spaces.Box`, convert it to acceleration space.
+        If action space is `gym.spaces.Box`, convert it to acceleration space.
 
         Returns:
             action_space (spaces.Dict): Convertd action spaces.
