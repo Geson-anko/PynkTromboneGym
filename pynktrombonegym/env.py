@@ -65,7 +65,7 @@ class PynkTrombone(gym.Env):
             stft_hop_length (int): Hop length of stft.
         """
 
-        self.target_sound_files = target_sound_files
+        self.set_target_sound_files(target_sound_files)
         self.sample_rate = sample_rate
         self.default_frequency = default_frequency
         self.generate_chunk = generate_chunk
@@ -97,7 +97,11 @@ class PynkTrombone(gym.Env):
         """Set `file_paths` to `self.target_sound_files`
         Args:
             file_paths (Iterable[str]): Paths to target sound files.
+        Raises:
+            ValueError: When empty file paths are provieded.
         """
+        if len(file_paths) == 0:
+            raise ValueError("Provided target sound files are empty!")
         self.target_sound_files = file_paths
 
     def initialize_state(self) -> None:
