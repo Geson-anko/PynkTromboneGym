@@ -9,13 +9,24 @@ from gym import spaces
 
 
 class ActionByAcceleration(gym.ActionWrapper):
-    """Action Wrapper of PynkTrombone.
+    """Action Wrapper of PynkTrombone environment.
     Acording to physical system, the action will specify acceleration
     instead of position. By integrating it, it is converted to
     base environment action (position).
 
     It is expected that the initial random policy will be continuous and natural,
     and learning will be more easier.
+
+    The following methods are available in this wrapper.
+    - :meth:`__init__` - Contruct this wrapper.
+    - :meth:`convert_space_to_acceleration` - Static method. Convert Box space range to acceleration range.
+    - :meth:`reset` - Reset this wrapping environment. Initialize this wrapper internal state.
+    - Gym wrapper API.
+
+    The following attributes are available.
+    - :attr:`velocities` - The velocity of actions. Integrated acceleration action.
+    - :attr:`positions` - The position of actions. Intergraed velocity action.
+    - :attr:`position_space` - Base environment action space.
     """
 
     velocities: Dict
@@ -60,7 +71,7 @@ class ActionByAcceleration(gym.ActionWrapper):
     @staticmethod
     def convert_space_to_acceleration(box_space: spaces.Box) -> spaces.Box:
         """Convert base action space to acceleration action space.
-        Modify input `gym.spaces.Box` space so that one-half of
+        Shift input `gym.spaces.Box` space so that one-half of
         the value range is 0.
 
         Args:
