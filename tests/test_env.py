@@ -93,6 +93,12 @@ def test_set_target_sound_files():
     default.set_target_sound_files(file_paths)
     assert default.target_sound_files == file_paths
 
+    try:
+        default.set_target_sound_files([])
+        raise AssertionError
+    except ValueError:
+        pass
+
 
 def test_initialize_state():
     default = env.PynkTrombone(target_sound_files)
