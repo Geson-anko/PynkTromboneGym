@@ -4,6 +4,7 @@ from pynktrombonegym import spectrogram as spct
 
 from .test_env import target_sound_files
 
+sound_file_1sec = "data/1sec.wav"
 
 def test_calc_rfft_channel_num():
     f = spct.calc_rfft_channel_num
@@ -31,7 +32,6 @@ def test_stft():
 
 
 def test_load_sound_file():
-    # missing sample rate assertion.
     f = spct.load_sound_file
 
     s1 = target_sound_files[0]
@@ -45,6 +45,11 @@ def test_load_sound_file():
     assert len(w2.shape) == 1
     assert np.abs(w2).max() <= 1
     assert w2.dtype == np.float32
+
+    w1sec_44100 = f(sound_file_1sec, 44100)
+    assert len(w1sec_44100) == 44100
+    w1sec_22050 = f(sound_file_1sec, 22050)
+    assert len(w1sec_22050) == 22050
 
 
 def test_pad_tail():
