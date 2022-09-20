@@ -20,12 +20,28 @@ class PynkTrombone(gym.Env):
     r"""The vocal tract environment for speech generation.
 
     The main API methods that users of this class need to know are:
-
     - :meth:`__init__`  - Constructor of this enviroment.
-
+    - :meth:`set_target_sound_files` - You must call `reset` method after this method.
+    - :meth:`initialize_state` - Initialize internal environment state.
+    - :meth:`get_current_observation` - Returns current observation values.
+    - :meth:`reset` - Gym API. Reset this environment state.
+    - :meth:`step` - Gym API. Step this environment.
+    - :meth:`render` - Gym API. render this environment state.
 
     And set the following attributes:
+    - :attr:`target_sound_files` - The list of paths to the target sound file.
+    - :attr:`sample_rate` - The generating resolution of this vocal tract model.
+    - :attr:`generate_chunk` - Length generated in 1 :meth:`step`.
+    - :attr:`stft_window_size` - Window size of stft.
+    - :attr:`stft_hop_length` - Hopping length of stft.
+    - :attr:`target_sound_wave` - Current target sound wave array.
+    - :attr:`generated_sound_wave` - Generated current sound wave array.
+    - :attr:`done` - Whether this environment has done or not.
+    - :attr:`max_steps` - The number of limit that we can call :meth:`step`.
+    - :attr:`current_step` - The number of times :meth:`step` has been called.
+    - :attr:`voc` - The vocal tract model class.
 
+    And other Gym API attrs and methods are available.
     """
 
     def __init__(
@@ -95,18 +111,7 @@ class PynkTrombone(gym.Env):
     action_space: spaces.Dict
 
     def define_action_space(self) -> spaces.Dict:
-        """Defines action space of this environment.
-
-        Action space:
-            pitch_shift,
-            tenseness,
-            traches,
-            epiglottis,
-            velum,
-            tongue_index,
-            tongue_diameter,
-            lips
-        """
+        """Defines action space of this environment."""
         action_space = spaces.Dict(
             {
                 ASN.PITCH_SHIFT: spaces.Box(-1.0, 1.0),
@@ -248,11 +253,8 @@ class PynkTrombone(gym.Env):
         self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None
     ) -> OrderedDict:
         """Reset this enviroment.
-        Choice sound file randomly and load waveform at random start point.
+        Choice sound file randomly and load it as waveform.
         Internal vocal tract model `Voc` is reconstructed too.
-
-        Returns initial `target_sound` spectrogram from loaded sound and
-        same shape zero array as initial `previous_generated_sound`.
 
         Returns:
             observation (OrderedDict): Initial observation of this enviroment.
