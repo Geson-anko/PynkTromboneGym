@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 from .env import PynkTrombone
-import numpy as np
+
 
 class Renderer:
     """Render process of PynkTrombone environment.
