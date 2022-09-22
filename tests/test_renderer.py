@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib import lines, text
+import numpy as np
 
 from pynktrombonegym import renderer
 from pynktrombonegym.env import PynkTrombone
@@ -78,5 +78,5 @@ def test_fig2rgba_array():
     assert array.ndim == 3
     w, h = rndr.figure.canvas.get_width_height(physical=True)
     assert array.shape[:2] == (h, w)
-
+    
     plt.imsave(f"data/test_results/{__name__}.test_fig2rgba_array.png", array)
