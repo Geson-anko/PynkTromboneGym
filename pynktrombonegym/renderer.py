@@ -100,3 +100,8 @@ class Renderer:
         buf = buf.reshape(h, w, 4).copy()
         buf = np.roll(buf, 3, axis=-1)
         return buf
+
+    @staticmethod
+    def fig2rgb_array(figure: plt.Figure) -> np.ndarray:
+        """Wrapper of fig2rgba_array. Removing alpha channel."""
+        return Renderer.fig2rgba_array(figure)[:, :, :3]
