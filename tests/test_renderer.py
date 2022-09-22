@@ -48,3 +48,18 @@ def test_create_initial_components():
     assert isinstance(rndr.infomation_text, text.Text)
 
     rndr.figure.savefig(f"data/test_results/{__name__}.test_create_initial_components.png")
+
+
+def test_update_values():
+    dflt = PynkTrombone(target_sound_files)
+    rndr = renderer.Renderer(dflt)
+
+    dflt.reset()
+    action = dflt.action_space.sample()
+    dflt.step(action)
+
+    rndr.update_values()
+
+    assert rndr.infomation_text.get_text() == rndr.make_infomation_text()
+
+    rndr.figure.savefig(f"data/test_results/{__name__}.update_values.png")
