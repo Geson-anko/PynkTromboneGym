@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 from .env import PynkTrombone
 
@@ -80,3 +81,22 @@ class Renderer:
         self.nose_diameters_line.set_data(self.nose_indices, nose_diameters)
 
         self.infomation_text.set_text(info_text)
+
+    @staticmethod
+    def fig2rgba_array(figure: plt.Figure) -> np.ndarray:
+        """Convert matplotlib figure to numpy array.
+
+        Args:
+            figure (plt.Figure): A matplotlib figure.
+
+        Returns:
+            image array (np.ndarray): Numpy array of rendered figure.
+                Shape: (Height, Width, RGBA)
+        """
+
+        figure.canvas.draw()
+        w, h = figure.canvas.get_width_height(physical=True)
+        buf = np.frombuffer(figure.canvas.tostring_argb(), dtype=np.uint8)
+        buf = buf.reshape(h, w, 4).copy()
+        buf = np.roll(buf, 3, axis=-1)
+        return buf

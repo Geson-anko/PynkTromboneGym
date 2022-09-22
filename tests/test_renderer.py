@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib import lines, text
 
 from pynktrombonegym import renderer
@@ -63,3 +64,19 @@ def test_update_values():
     assert rndr.infomation_text.get_text() == rndr.make_infomation_text()
 
     rndr.figure.savefig(f"data/test_results/{__name__}.update_values.png")
+
+
+def test_fig2rgba_array():
+    dflt = PynkTrombone(target_sound_files)
+    rndr = renderer.Renderer(dflt)
+
+    array = rndr.fig2rgba_array(rndr.figure)
+
+    assert isinstance(array, np.ndarray)
+    assert array.shape[-1] == 4
+    assert array.dtype == np.uint8
+    assert array.ndim == 3
+    w, h = rndr.figure.canvas.get_width_height(physical=True)
+    assert array.shape[:2] == (h, w)
+
+    plt.imsave(f"data/test_results/{__name__}.test_fig2rgba_array.png", array)
