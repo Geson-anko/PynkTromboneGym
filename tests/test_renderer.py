@@ -80,3 +80,14 @@ def test_fig2rgba_array():
     assert array.shape[:2] == (h, w)
 
     plt.imsave(f"data/test_results/{__name__}.test_fig2rgba_array.png", array)
+
+
+def test_fig2rgb_array():
+    dflt = PynkTrombone(target_sound_files)
+    rndr = renderer.Renderer(dflt)
+
+    array = rndr.fig2rgb_array(rndr.figure)
+
+    assert isinstance(array, np.ndarray)
+    assert array.shape[-1] == 3
+    plt.imsave(f"data/test_results/{__name__}.test_fig2rgb_array.png", array)
