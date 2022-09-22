@@ -32,3 +32,19 @@ def test_make_infomation_text():
     )
 
     assert info_text == correct
+
+
+def test_create_initial_components():
+    dflt = PynkTrombone(target_sound_files)
+    rndr = renderer.Renderer(dflt)
+    # called in `__init__`
+
+    assert isinstance(rndr.figure, plt.Figure)
+    assert isinstance(rndr.axes, plt.Axes)
+    assert rndr.indices == list(range(dflt.voc.tract_size))
+    assert rndr.nose_indices == rndr.indices[-dflt.voc.nose_size :]
+    assert isinstance(rndr.nose_diameters_line, lines.Line2D)
+    assert isinstance(rndr.tract_diameters_line, lines.Line2D)
+    assert isinstance(rndr.infomation_text, text.Text)
+
+    rndr.figure.savefig(f"data/test_results/{__name__}.test_create_initial_components.png")
