@@ -21,3 +21,21 @@ class Renderer:
 
         self.env = env
         self.figsize = figsize
+
+    def make_infomation_text(self) -> str:
+        """Make infomation text displaying on the figure.
+        Infomations are:
+            - current_step
+            - frequency
+            - tenseness
+
+        Returns:
+            info_text (str): Infomation text value.
+        """
+        info = (
+            f"current step: {self.env.current_step}\n"
+            f"frequency: {float(self.env.voc.frequency): .2f}\n"
+            f"tenseness: {float(self.env.voc.tenseness): .2f}\n"
+        )
+
+        return info
