@@ -69,3 +69,14 @@ class Renderer:
         info = self.make_infomation_text()
 
         self.infomation_text = self.axes.text(1, 4.0, info)
+
+    def update_values(self) -> None:
+        """Update values ploted on the figure."""
+        nose_diameters = self.env.voc.nose_diameters
+        currect_tract_diameters = self.env.voc.current_tract_diameters
+
+        info_text = self.make_infomation_text()
+        self.tract_diameters_line.set_data(self.indices, currect_tract_diameters)
+        self.nose_diameters_line.set_data(self.nose_indices, nose_diameters)
+
+        self.infomation_text.set_text(info_text)
