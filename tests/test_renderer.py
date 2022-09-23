@@ -103,3 +103,4 @@ def test_render_rgb_array():
     assert array.shape[-1] == 3
     assert array.ndim == 3
     assert array.dtype == np.uint8
+    plt.imsave(f"data/test_results/{__name__}.test_render_rgb_array.png", array)
