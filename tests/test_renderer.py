@@ -120,3 +120,14 @@ def test_close():
 
     assert fignum_before_create == len(plt.get_fignums())
     assert len(rndr.figure.axes) == 0
+
+
+def test__del__():
+    dflt = PynkTrombone(target_sound_files)
+    fignum_before_create = len(plt.get_fignums())
+    rndr = renderer.Renderer(dflt)
+    fignum_after_create = len(plt.get_fignums())
+
+    assert fignum_before_create + 1 == fignum_after_create
+    rndr.__del__()
+    assert fignum_before_create == len(plt.get_fignums())
