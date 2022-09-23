@@ -104,3 +104,19 @@ def test_render_rgb_array():
     assert array.ndim == 3
     assert array.dtype == np.uint8
     plt.imsave(f"data/test_results/{__name__}.test_render_rgb_array.png", array)
+
+
+def test_close():
+    dflt = PynkTrombone(target_sound_files)
+    fignum_before_create = len(plt.get_fignums())
+    rndr = renderer.Renderer(dflt)
+    fignum_after_create = len(plt.get_fignums())
+    axnum = len(rndr.figure.axes)
+
+    assert fignum_before_create + 1 == fignum_after_create
+    assert axnum > 0
+
+    rndr.close()
+
+    assert fignum_before_create == len(plt.get_fignums())
+    assert len(rndr.figure.axes) == 0
