@@ -105,3 +105,12 @@ class Renderer:
     def fig2rgb_array(figure: plt.Figure) -> np.ndarray:
         """Wrapper of fig2rgba_array. Removing alpha channel."""
         return Renderer.fig2rgba_array(figure)[:, :, :3]
+
+    def render_rgb_array(self) -> np.ndarray:
+        """Render figure and return image as numpy array.
+        
+        Returns:
+            image array (np.ndarray): Rendered image array.
+        """
+
+        return self.fig2rgb_array(self.figure)
