@@ -114,3 +114,8 @@ class Renderer:
         """
 
         return self.fig2rgb_array(self.figure)
+
+    def close(self) -> None:
+        """Clear figure and close it."""
+        self.figure.clear()
+        plt.close(self.figure)
