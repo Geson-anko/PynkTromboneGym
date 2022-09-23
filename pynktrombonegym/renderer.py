@@ -119,3 +119,7 @@ class Renderer:
         """Clear figure and close it."""
         self.figure.clear()
         plt.close(self.figure)
+
+    def __del__(self):
+        """Destructor"""
+        self.close()
