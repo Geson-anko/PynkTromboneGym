@@ -96,12 +96,10 @@ def test_fig2rgb_array():
 def test_render_rgb_array():
     dflt = PynkTrombone(target_sound_files)
     rndr = renderer.Renderer(dflt)
-    
+
     array = rndr.render_rgb_array()
 
     assert isinstance(array, np.ndarray)
     assert array.shape[-1] == 3
     assert array.ndim == 3
     assert array.dtype == np.uint8
-
-    

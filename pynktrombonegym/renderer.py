@@ -108,7 +108,7 @@ class Renderer:
 
     def render_rgb_array(self) -> np.ndarray:
         """Render figure and return image as numpy array.
-        
+
         Returns:
             image array (np.ndarray): Rendered image array.
         """
