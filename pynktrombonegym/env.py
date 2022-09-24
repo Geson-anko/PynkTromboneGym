@@ -10,6 +10,7 @@ from gym import spaces
 from pynktrombone import Voc
 
 from . import spectrogram as spct
+from .renderer import Renderer
 from .spaces import ActionSpaceNames as ASN
 from .spaces import ObservationSpaceNames as OSN
 
@@ -40,6 +41,7 @@ class PynkTrombone(gym.Env):
     - :attr:`max_steps` - The number of limit that we can call :meth:`step`.
     - :attr:`current_step` - The number of times :meth:`step` has been called.
     - :attr:`voc` - The vocal tract model class.
+    - :attr:`renderer` - The renderer class does internal process of :meth:`render`
 
     And other Gym API attrs and methods are available.
     """
@@ -52,6 +54,7 @@ class PynkTrombone(gym.Env):
         generate_chunk: int = 1024,
         stft_window_size: int = 1024,
         stft_hop_length: int = None,
+        rendering_figure_size: tuple[float, float] = (6.4, 4.8),
     ):
         """Contructs environment. Setup `Voc`, deine spaces, and reset environment.
 
@@ -75,6 +78,8 @@ class PynkTrombone(gym.Env):
         self.stft_hop_length = stft_hop_length
 
         self.initialize_state()
+
+        self.renderer = Renderer(self.voc, rendering_figure_size)
 
         self.action_space = self.define_action_space()
         self.observation_space = self.define_observation_space()
