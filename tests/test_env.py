@@ -370,37 +370,23 @@ def test_render():
     dflt = env.PynkTrombone(target_sound_files)
     dflt.reset()
     assert dflt.render(None) is None
-    figure = dflt.render("single_figure")
-    assert isinstance(figure, plt.Figure)
-    figure.savefig(f"data/test_results/{__name__}.test_render.figure.png")
 
     array = dflt.render("single_rgb_array")
     assert isinstance(array, np.ndarray)
     assert array.shape[-1] == 3
     plt.imsave(f"data/test_results/{__name__}.test_render.single_rgb_array.png", array)
-    plt.close()
 
     dflt.reset()
     render_times = 5
     for _ in range(render_times):
         dflt.render()
-    figures = dflt.render("figures")
-    assert len(figures) == render_times + 1
-    assert dflt._stored_state_figures == []
-    for f in figures:
-        assert isinstance(f, plt.Figure)
-    plt.close()
-
-    for _ in range(render_times):
-        dflt.render()
     fig_arrays = dflt.render("rgb_arrays")
-    assert len(fig_arrays) == render_times + 1
-    assert dflt._stored_state_figures == []
+    assert len(fig_arrays) == render_times
+    assert dflt._rendered_rgb_arrays == []
     for fa in fig_arrays:
         assert isinstance(fa, np.ndarray)
         assert fa.shape[-1] == 3
         assert fa.ndim == 3
-    plt.close()
 
     try:
         dflt.render("1234567890")  # type: ignore
