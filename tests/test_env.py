@@ -345,13 +345,6 @@ def test_step():
         pass
 
 
-def test_create_state_figure():
-    dflt = env.PynkTrombone(target_sound_files)
-    dflt.reset()
-    figure = dflt.create_state_figure()
-    figure.savefig(f"data/test_results/{__name__}.test_create_state_figure.png")
-
-
 def test_render():
     dflt = env.PynkTrombone(target_sound_files)
     dflt.reset()
