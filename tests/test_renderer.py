@@ -1,49 +1,43 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import lines, text
+from pynktrombone.voc import Voc
 
 from pynktrombonegym import renderer
-from pynktrombonegym.env import PynkTrombone
-
-from .test_env import target_sound_files
 
 
 def test__init__():
-    dflt = PynkTrombone(target_sound_files)
-    rndr = renderer.Renderer(dflt)
+    voc = Voc()
+    rndr = renderer.Renderer(voc)
 
-    assert rndr.env is dflt
+    assert rndr.voc is voc
     assert rndr.figsize == (6.4, 4.8)
 
-    rndr = renderer.Renderer(dflt, figsize=(1, 1))
-    assert rndr.env is dflt
+    rndr = renderer.Renderer(voc, figsize=(1, 1))
+    assert rndr.voc is voc
     assert rndr.figsize == (1, 1)
 
 
 def test_make_infomation_text():
-    dflt = PynkTrombone(target_sound_files)
-    rndr = renderer.Renderer(dflt)
+    voc = Voc()
+    rndr = renderer.Renderer(voc)
 
     info_text = rndr.make_infomation_text()
 
-    correct = (
-        f"current step: {dflt.current_step}\n"
-        f"frequency: {float(dflt.voc.frequency): .2f}\n"
-        f"tenseness: {float(dflt.voc.tenseness): .2f}\n"
-    )
+    correct = f"frequency: {float(voc.frequency): .2f}\n" f"tenseness: {float(voc.tenseness): .2f}\n"
 
     assert info_text == correct
 
 
 def test_create_initial_components():
-    dflt = PynkTrombone(target_sound_files)
-    rndr = renderer.Renderer(dflt)
+    voc = Voc()
+    rndr = renderer.Renderer(voc)
     # called in `__init__`
 
     assert isinstance(rndr.figure, plt.Figure)
     assert isinstance(rndr.axes, plt.Axes)
-    assert rndr.indices == list(range(dflt.voc.tract_size))
-    assert rndr.nose_indices == rndr.indices[-dflt.voc.nose_size :]
+    assert rndr.indices == list(range(voc.tract_size))
+    assert rndr.nose_indices == rndr.indices[-voc.nose_size :]
     assert isinstance(rndr.nose_diameters_line, lines.Line2D)
     assert isinstance(rndr.tract_diameters_line, lines.Line2D)
     assert isinstance(rndr.infomation_text, text.Text)
@@ -52,12 +46,13 @@ def test_create_initial_components():
 
 
 def test_update_values():
-    dflt = PynkTrombone(target_sound_files)
-    rndr = renderer.Renderer(dflt)
+    voc = Voc()
+    rndr = renderer.Renderer(voc)
 
-    dflt.reset()
-    action = dflt.action_space.sample()
-    dflt.step(action)
+    voc.frequency = voc.frequency + 10
+    voc.tenseness = 0.44
+    voc.set_tract_parameters(0.7, 0.5, 0.1, 29, 1.0, 1.0)
+    voc.step()
 
     rndr.update_values()
 
@@ -67,8 +62,8 @@ def test_update_values():
 
 
 def test_fig2rgba_array():
-    dflt = PynkTrombone(target_sound_files)
-    rndr = renderer.Renderer(dflt)
+    voc = Voc()
+    rndr = renderer.Renderer(voc)
 
     array = rndr.fig2rgba_array(rndr.figure)
 
@@ -83,8 +78,8 @@ def test_fig2rgba_array():
 
 
 def test_fig2rgb_array():
-    dflt = PynkTrombone(target_sound_files)
-    rndr = renderer.Renderer(dflt)
+    voc = Voc()
+    rndr = renderer.Renderer(voc)
 
     array = rndr.fig2rgb_array(rndr.figure)
 
@@ -94,8 +89,8 @@ def test_fig2rgb_array():
 
 
 def test_render_rgb_array():
-    dflt = PynkTrombone(target_sound_files)
-    rndr = renderer.Renderer(dflt)
+    voc = Voc()
+    rndr = renderer.Renderer(voc)
 
     array = rndr.render_rgb_array()
 
@@ -107,9 +102,9 @@ def test_render_rgb_array():
 
 
 def test_close():
-    dflt = PynkTrombone(target_sound_files)
+    voc = Voc()
     fignum_before_create = len(plt.get_fignums())
-    rndr = renderer.Renderer(dflt)
+    rndr = renderer.Renderer(voc)
     fignum_after_create = len(plt.get_fignums())
     axnum = len(rndr.figure.axes)
 
@@ -123,9 +118,9 @@ def test_close():
 
 
 def test__del__():
-    dflt = PynkTrombone(target_sound_files)
+    voc = Voc()
     fignum_before_create = len(plt.get_fignums())
-    rndr = renderer.Renderer(dflt)
+    rndr = renderer.Renderer(voc)
     fignum_after_create = len(plt.get_fignums())
 
     assert fignum_before_create + 1 == fignum_after_create
