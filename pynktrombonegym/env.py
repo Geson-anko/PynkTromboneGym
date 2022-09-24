@@ -348,49 +348,6 @@ class PynkTrombone(gym.Env):
         obs = self.get_current_observation()
         return obs, reward, done, info
 
-    def create_state_figure(self) -> plt.Figure:
-        """Create a figure of current environment state.
-
-        Plotting:
-        - current_step
-        - current_tract_diameters
-        - nose_diameters
-        - current voc frequency
-        - current voc tenseness
-
-        Returns:
-            figure (plt.Figure): A figure of current environment state.
-        """
-        obs = self.get_current_observation()
-        nose_diameters: np.ndarray = obs[OSN.NOSE_DIAMETERS]
-        current_tract_diameters: np.ndarray = obs[OSN.CURRENT_TRACT_DIAMETERS]
-        frequency: np.ndarray = obs[OSN.FREQUENCY]
-        tenseness: np.ndarray = obs[OSN.TENSENESS]
-
-        fig = plt.figure(figsize=(6.4 * 1.5, 4.8 * 1.5))
-        ax = fig.add_subplot(1, 1, 1)
-
-        indices = list(range(self.voc.tract_size))
-        nose_indices = indices[-self.voc.nose_size :]
-        ax.set_ylim(0.0, 5.0)
-        ax.plot(nose_indices, nose_diameters, label="nose diameters")
-        ax.plot(indices, current_tract_diameters, label="tract diameters")
-        ax.legend()
-
-        ax.set_title("Tract diameters")
-        ax.set_xlabel("diameter index")
-        ax.set_ylabel("diameter [cm]")
-
-        info = (
-            f"current step: {self.current_step}\n"
-            f"frequency: {frequency.item(): .2f}\n"
-            f"tenseness: {tenseness.item(): .2f}\n"
-        )
-
-        ax.text(1, 4.0, info)
-
-        return fig
-
     def render(
         self, mode: Optional[Literal["rgb_arrays", "single_rgb_array"]] = None
     ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
