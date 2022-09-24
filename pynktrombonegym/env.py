@@ -116,7 +116,7 @@ class PynkTrombone(gym.Env):
         self.target_sound_wave_full = self.load_sound_wave_randomly()
         self._generated_sound_wave_2chunks = np.zeros(self.generate_chunk * 2, dtype=np.float32)
         self.voc = Voc(self.sample_rate, self.generate_chunk, default_freq=self.default_frequency)
-        self._stored_state_figures: List[plt.Figure] = []
+        self._rendered_rgb_arrays: List[np.ndarray] = []
 
     action_space: spaces.Dict
 
