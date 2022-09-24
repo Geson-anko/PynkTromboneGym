@@ -392,21 +392,16 @@ class PynkTrombone(gym.Env):
         return fig
 
     def render(
-        self, mode: Optional[Literal["figures", "rgb_arrays", "single_figure", "single_rgb_array"]] = None
+        self, mode: Optional[Literal["rgb_arrays", "single_rgb_array"]] = None
     ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Render a figure of current Vocal Tract diameters and etc.
 
         Args:
             mode (Optional[Literal]): Rendering mode.
-                - None: Create figure and store it.
-                - "figures": Render current figure and return all stored figures.
-                - "rgb_arrays": Render current figure array and return all
-                    stored figure array.
-                - "single_rgb_array": Return RGB image array of figure.
-                - "singe_figure": Return a figure of matplotlib.pyplot.
-                Note: "figures" and "rgb_arrays" mode clear all stored figures.
-                    If you want all figures and arrays, Use "figures" mode and
-                    `fig2rgba_array` function to convert figures to numpy array.
+                - None: Render rgb_array and store it.
+                - "rgb_arrays": Return all rendered array. (NOT render new image.)
+                - "single_rgb_array": Return all rgb array of figure.
+                Note: "rgb_arrays" mode returns all stored figures and clear list.
 
         Returns:
             image (Optional[Union[RenderFrame, List[RenderFrame]]]): Renderd image or images.
@@ -414,25 +409,18 @@ class PynkTrombone(gym.Env):
         Raises:
             NotImplementedError: When mode is unexpected value.
         """
+        if mode == "rgb_arrays":
+            arrays = copy.copy(self._rendered_rgb_arrays)
+            self._rendered_rgb_arrays.clear()
+            return arrays
 
-        fig = self.create_state_figure()
-
+        self.renderer.update_values()
+        rgb_array = self.renderer.render_rgb_array()
         if mode is None:
-            self._stored_state_figures.append(fig)
+            self._rendered_rgb_arrays.append(rgb_array)
             return None
-        elif mode == "single_figure":
-            return fig
         elif mode == "single_rgb_array":
-            return fig2rgba_array(fig)[:, :, :3]
-
-        figures = copy.copy(self._stored_state_figures)
-        figures.append(fig)
-        self._stored_state_figures.clear()
-
-        if mode == "figures":
-            return figures
-        elif mode == "rgb_arrays":
-            return [fig2rgba_array(f)[:, :, :3] for f in figures]
+            return rgb_array
         else:
             raise NotImplementedError(f"Render mode {mode} is not implemented!")
 
