@@ -381,6 +381,10 @@ class PynkTrombone(gym.Env):
         else:
             raise NotImplementedError(f"Render mode {mode} is not implemented!")
 
+    def close(self):
+        self.renderer.close()
+        return super().close()
+
 
 def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
     """Compute mse.
