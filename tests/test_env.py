@@ -118,7 +118,7 @@ def test_initialize_state():
     assert default.current_step == 0
     assert type(default.target_sound_wave_full) is np.ndarray
     assert np.all(default._generated_sound_wave_2chunks == 0.0)
-    assert default._stored_state_figures == []
+    assert default._rendered_rgb_arrays == []
 
     voc0 = default.voc
     default.current_step += 10  # Assumption
