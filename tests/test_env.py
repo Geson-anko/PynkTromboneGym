@@ -8,6 +8,7 @@ from gym import spaces
 
 from pynktrombonegym import env
 from pynktrombonegym import spectrogram as spct
+from pynktrombonegym.renderer import Renderer
 from pynktrombonegym.spaces import ActionSpaceNames as ASN
 from pynktrombonegym.spaces import ObservationSpaceNames as OSN
 
@@ -37,14 +38,23 @@ def test__init__():
     assert default.generate_chunk == 1024
     assert default.stft_window_size == 1024
     assert default.stft_hop_length == 256
+    assert isinstance(default.renderer, Renderer)
+    assert default.renderer.figsize == (6.4, 4.8)
 
     sample_rate = 44100
     default_frequency = 440
     generate_chunk = 512
     stft_window_size = 512
     stft_hop_length = 256
+    rendering_figure_size = (1.0, 1.0)
     mod = env.PynkTrombone(
-        target_sound_files, sample_rate, default_frequency, generate_chunk, stft_window_size, stft_hop_length
+        target_sound_files,
+        sample_rate,
+        default_frequency,
+        generate_chunk,
+        stft_window_size,
+        stft_hop_length,
+        rendering_figure_size,
     )
     assert mod.target_sound_files == target_sound_files
     assert mod.sample_rate == sample_rate
@@ -52,6 +62,7 @@ def test__init__():
     assert mod.generate_chunk == generate_chunk
     assert mod.stft_window_size == stft_window_size
     assert mod.stft_hop_length == stft_hop_length
+    assert mod.renderer.figsize == rendering_figure_size
 
     # test define spaces
     rr = default.reward_range
@@ -107,7 +118,7 @@ def test_initialize_state():
     assert default.current_step == 0
     assert type(default.target_sound_wave_full) is np.ndarray
     assert np.all(default._generated_sound_wave_2chunks == 0.0)
-    assert default._stored_state_figures == []
+    assert default._rendered_rgb_arrays == []
 
     voc0 = default.voc
     default.current_step += 10  # Assumption
@@ -334,62 +345,27 @@ def test_step():
         pass
 
 
-def test_create_state_figure():
-    dflt = env.PynkTrombone(target_sound_files)
-    dflt.reset()
-    figure = dflt.create_state_figure()
-    figure.savefig(f"data/test_results/{__name__}.test_create_state_figure.png")
-
-
-def test_fig2argb_array():
-    dflt = env.PynkTrombone(target_sound_files)
-    dflt.reset()
-    figure = dflt.create_state_figure()
-    array = env.fig2rgba_array(figure)
-
-    assert isinstance(array, np.ndarray)
-    assert array.shape[-1] == 4
-    assert array.dtype == np.uint8
-    assert array.ndim == 3
-
-    plt.imsave(f"data/test_results/{__name__}.test_fig2rgba_array.png", array)
-
-
 def test_render():
     dflt = env.PynkTrombone(target_sound_files)
     dflt.reset()
     assert dflt.render(None) is None
-    figure = dflt.render("single_figure")
-    assert isinstance(figure, plt.Figure)
-    figure.savefig(f"data/test_results/{__name__}.test_render.figure.png")
 
     array = dflt.render("single_rgb_array")
     assert isinstance(array, np.ndarray)
     assert array.shape[-1] == 3
     plt.imsave(f"data/test_results/{__name__}.test_render.single_rgb_array.png", array)
-    plt.close()
 
     dflt.reset()
     render_times = 5
     for _ in range(render_times):
         dflt.render()
-    figures = dflt.render("figures")
-    assert len(figures) == render_times + 1
-    assert dflt._stored_state_figures == []
-    for f in figures:
-        assert isinstance(f, plt.Figure)
-    plt.close()
-
-    for _ in range(render_times):
-        dflt.render()
     fig_arrays = dflt.render("rgb_arrays")
-    assert len(fig_arrays) == render_times + 1
-    assert dflt._stored_state_figures == []
+    assert len(fig_arrays) == render_times
+    assert dflt._rendered_rgb_arrays == []
     for fa in fig_arrays:
         assert isinstance(fa, np.ndarray)
         assert fa.shape[-1] == 3
         assert fa.ndim == 3
-    plt.close()
 
     try:
         dflt.render("1234567890")  # type: ignore

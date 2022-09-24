@@ -10,10 +10,11 @@ from gym import spaces
 from pynktrombone import Voc
 
 from . import spectrogram as spct
+from .renderer import Renderer
 from .spaces import ActionSpaceNames as ASN
 from .spaces import ObservationSpaceNames as OSN
 
-RenderFrame = TypeVar("RenderFrame", plt.Figure, np.ndarray)
+RenderFrame = TypeVar("RenderFrame", np.ndarray, Any)
 
 
 class PynkTrombone(gym.Env):
@@ -40,6 +41,7 @@ class PynkTrombone(gym.Env):
     - :attr:`max_steps` - The number of limit that we can call :meth:`step`.
     - :attr:`current_step` - The number of times :meth:`step` has been called.
     - :attr:`voc` - The vocal tract model class.
+    - :attr:`renderer` - The renderer class does internal process of :meth:`render`
 
     And other Gym API attrs and methods are available.
     """
@@ -52,6 +54,7 @@ class PynkTrombone(gym.Env):
         generate_chunk: int = 1024,
         stft_window_size: int = 1024,
         stft_hop_length: int = None,
+        rendering_figure_size: tuple[float, float] = (6.4, 4.8),
     ):
         """Contructs environment. Setup `Voc`, deine spaces, and reset environment.
 
@@ -63,6 +66,7 @@ class PynkTrombone(gym.Env):
             generate_chunk (int): Length generated in 1 step.
             stft_window_size (int): Window size of stft.
             stft_hop_length (int): Hop length of stft.
+            rendering_figure_size (tuple[float, float]): The figure size of rendering image. [Inch]
         """
 
         self.set_target_sound_files(target_sound_files)
@@ -75,6 +79,8 @@ class PynkTrombone(gym.Env):
         self.stft_hop_length = stft_hop_length
 
         self.initialize_state()
+
+        self.renderer = Renderer(self.voc, rendering_figure_size)
 
         self.action_space = self.define_action_space()
         self.observation_space = self.define_observation_space()
@@ -110,7 +116,7 @@ class PynkTrombone(gym.Env):
         self.target_sound_wave_full = self.load_sound_wave_randomly()
         self._generated_sound_wave_2chunks = np.zeros(self.generate_chunk * 2, dtype=np.float32)
         self.voc = Voc(self.sample_rate, self.generate_chunk, default_freq=self.default_frequency)
-        self._stored_state_figures: List[plt.Figure] = []
+        self._rendered_rgb_arrays: List[np.ndarray] = []
 
     action_space: spaces.Dict
 
@@ -342,65 +348,17 @@ class PynkTrombone(gym.Env):
         obs = self.get_current_observation()
         return obs, reward, done, info
 
-    def create_state_figure(self) -> plt.Figure:
-        """Create a figure of current environment state.
-
-        Plotting:
-        - current_step
-        - current_tract_diameters
-        - nose_diameters
-        - current voc frequency
-        - current voc tenseness
-
-        Returns:
-            figure (plt.Figure): A figure of current environment state.
-        """
-        obs = self.get_current_observation()
-        nose_diameters: np.ndarray = obs[OSN.NOSE_DIAMETERS]
-        current_tract_diameters: np.ndarray = obs[OSN.CURRENT_TRACT_DIAMETERS]
-        frequency: np.ndarray = obs[OSN.FREQUENCY]
-        tenseness: np.ndarray = obs[OSN.TENSENESS]
-
-        fig = plt.figure(figsize=(6.4 * 1.5, 4.8 * 1.5))
-        ax = fig.add_subplot(1, 1, 1)
-
-        indices = list(range(self.voc.tract_size))
-        nose_indices = indices[-self.voc.nose_size :]
-        ax.set_ylim(0.0, 5.0)
-        ax.plot(nose_indices, nose_diameters, label="nose diameters")
-        ax.plot(indices, current_tract_diameters, label="tract diameters")
-        ax.legend()
-
-        ax.set_title("Tract diameters")
-        ax.set_xlabel("diameter index")
-        ax.set_ylabel("diameter [cm]")
-
-        info = (
-            f"current step: {self.current_step}\n"
-            f"frequency: {frequency.item(): .2f}\n"
-            f"tenseness: {tenseness.item(): .2f}\n"
-        )
-
-        ax.text(1, 4.0, info)
-
-        return fig
-
     def render(
-        self, mode: Optional[Literal["figures", "rgb_arrays", "single_figure", "single_rgb_array"]] = None
+        self, mode: Optional[Literal["rgb_arrays", "single_rgb_array"]] = None
     ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Render a figure of current Vocal Tract diameters and etc.
 
         Args:
             mode (Optional[Literal]): Rendering mode.
-                - None: Create figure and store it.
-                - "figures": Render current figure and return all stored figures.
-                - "rgb_arrays": Render current figure array and return all
-                    stored figure array.
-                - "single_rgb_array": Return RGB image array of figure.
-                - "singe_figure": Return a figure of matplotlib.pyplot.
-                Note: "figures" and "rgb_arrays" mode clear all stored figures.
-                    If you want all figures and arrays, Use "figures" mode and
-                    `fig2rgba_array` function to convert figures to numpy array.
+                - None: Render rgb_array and store it.
+                - "rgb_arrays": Return all rendered array. (NOT render new image.)
+                - "single_rgb_array": Return all rgb array of figure.
+                Note: "rgb_arrays" mode returns all stored figures and clear list.
 
         Returns:
             image (Optional[Union[RenderFrame, List[RenderFrame]]]): Renderd image or images.
@@ -408,46 +366,20 @@ class PynkTrombone(gym.Env):
         Raises:
             NotImplementedError: When mode is unexpected value.
         """
+        if mode == "rgb_arrays":
+            arrays = copy.copy(self._rendered_rgb_arrays)
+            self._rendered_rgb_arrays.clear()
+            return arrays
 
-        fig = self.create_state_figure()
-
+        self.renderer.update_values()
+        rgb_array = self.renderer.render_rgb_array()
         if mode is None:
-            self._stored_state_figures.append(fig)
+            self._rendered_rgb_arrays.append(rgb_array)
             return None
-        elif mode == "single_figure":
-            return fig
         elif mode == "single_rgb_array":
-            return fig2rgba_array(fig)[:, :, :3]
-
-        figures = copy.copy(self._stored_state_figures)
-        figures.append(fig)
-        self._stored_state_figures.clear()
-
-        if mode == "figures":
-            return figures
-        elif mode == "rgb_arrays":
-            return [fig2rgba_array(f)[:, :, :3] for f in figures]
+            return rgb_array
         else:
             raise NotImplementedError(f"Render mode {mode} is not implemented!")
-
-
-def fig2rgba_array(figure: plt.Figure) -> np.ndarray:
-    """Convert matplotlib figure to numpy array.
-
-    Args:
-        figure (plt.Figure): A matplotlib figure.
-
-    Returns:
-        image array (np.ndarray): Numpy array of rendered figure.
-            Shape: (Height, Width, RGBA)
-    """
-
-    figure.canvas.draw()
-    w, h = figure.canvas.get_width_height()
-    buf = np.frombuffer(figure.canvas.tostring_argb(), dtype=np.uint8)
-    buf = buf.reshape(h * 2, w * 2, 4).copy()
-    buf = np.roll(buf, 3, axis=-1)
-    return buf
 
 
 def mean_squared_error(output: np.ndarray, target: np.ndarray) -> float:
