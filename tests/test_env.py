@@ -352,20 +352,6 @@ def test_create_state_figure():
     figure.savefig(f"data/test_results/{__name__}.test_create_state_figure.png")
 
 
-def test_fig2argb_array():
-    dflt = env.PynkTrombone(target_sound_files)
-    dflt.reset()
-    figure = dflt.create_state_figure()
-    array = env.fig2rgba_array(figure)
-
-    assert isinstance(array, np.ndarray)
-    assert array.shape[-1] == 4
-    assert array.dtype == np.uint8
-    assert array.ndim == 3
-
-    plt.imsave(f"data/test_results/{__name__}.test_fig2rgba_array.png", array)
-
-
 def test_render():
     dflt = env.PynkTrombone(target_sound_files)
     dflt.reset()
