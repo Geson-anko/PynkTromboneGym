@@ -66,6 +66,7 @@ class PynkTrombone(gym.Env):
             generate_chunk (int): Length generated in 1 step.
             stft_window_size (int): Window size of stft.
             stft_hop_length (int): Hop length of stft.
+            rendering_figure_size (tuple[float, float]): The figure size of rendering image. [Inch]
         """
 
         self.set_target_sound_files(target_sound_files)
