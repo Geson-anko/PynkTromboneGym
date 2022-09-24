@@ -1,3 +1,5 @@
+import gc
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import lines, text
@@ -102,6 +104,7 @@ def test_render_rgb_array():
 
 
 def test_close():
+    gc.collect()
     voc = Voc()
     fignum_before_create = len(plt.get_fignums())
     rndr = renderer.Renderer(voc)
@@ -118,6 +121,7 @@ def test_close():
 
 
 def test__del__():
+    gc.collect()
     voc = Voc()
     fignum_before_create = len(plt.get_fignums())
     rndr = renderer.Renderer(voc)
