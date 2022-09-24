@@ -39,7 +39,7 @@ class ActionByAcceleration(gym.ActionWrapper):
         action_scaler: float,
         initial_pos: Optional[Dict] = None,
         ignore_actions: Optional[Iterable[str]] = None,
-        new_step_api: bool = False,
+        new_step_api: bool = True,
     ) -> None:
         """Constuct this wrapper.
 
