@@ -8,6 +8,7 @@ from gym import spaces
 
 from pynktrombonegym import env
 from pynktrombonegym import spectrogram as spct
+from pynktrombonegym.renderer import Renderer
 from pynktrombonegym.spaces import ActionSpaceNames as ASN
 from pynktrombonegym.spaces import ObservationSpaceNames as OSN
 
@@ -37,14 +38,23 @@ def test__init__():
     assert default.generate_chunk == 1024
     assert default.stft_window_size == 1024
     assert default.stft_hop_length == 256
+    assert isinstance(default.renderer, Renderer)
+    assert default.renderer.figsize == (6.4, 4.8)
 
     sample_rate = 44100
     default_frequency = 440
     generate_chunk = 512
     stft_window_size = 512
     stft_hop_length = 256
+    rendering_figure_size = (1.0, 1.0)
     mod = env.PynkTrombone(
-        target_sound_files, sample_rate, default_frequency, generate_chunk, stft_window_size, stft_hop_length
+        target_sound_files,
+        sample_rate,
+        default_frequency,
+        generate_chunk,
+        stft_window_size,
+        stft_hop_length,
+        rendering_figure_size,
     )
     assert mod.target_sound_files == target_sound_files
     assert mod.sample_rate == sample_rate
@@ -52,6 +62,7 @@ def test__init__():
     assert mod.generate_chunk == generate_chunk
     assert mod.stft_window_size == stft_window_size
     assert mod.stft_hop_length == stft_hop_length
+    assert mod.renderer.figsize == rendering_figure_size
 
     # test define spaces
     rr = default.reward_range
