@@ -14,7 +14,7 @@ from .renderer import Renderer
 from .spaces import ActionSpaceNames as ASN
 from .spaces import ObservationSpaceNames as OSN
 
-RenderFrame = TypeVar("RenderFrame", plt.Figure, np.ndarray)
+RenderFrame = TypeVar("RenderFrame", np.ndarray, Any)
 
 
 class PynkTrombone(gym.Env):
