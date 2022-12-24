@@ -1,5 +1,6 @@
 # PynkTromboneGym
-The vocal tract environment for speech generations by reinforcement learning.
+The vocal tract environment for speech generations by reinforcement learning.  
+See [pynktrombone](https://github.com/Geson-anko/pynktrombone) and [Original PinkTrombone](https://imaginary.github.io/pink-trombone/).
 
 # Installation
 ```sh
@@ -28,9 +29,10 @@ PynkTromboneEnvは人間のVocal Tractをシミュレーションし、強化学
     基準となる声の高さです。この周波数から $\pm{1}$ オクターブが生成可能な周波数帯です。
 
 - generate_chunk: int  
-    1ステップで生成する音声波形の長さです。pynkTromboneではデフォルトで`1024`です。
+    1ステップで生成する音声波形の長さです。pynkTromboneではデフォルトで`1024`です。  
+    ちなみに `generate_chunk / sample_rate` [s] が1ステップで生成する波形の時間間隔です。
 - stft_window_size: int  
-    波形をstftする時のウィンドウサイズです。デフォルトでは`1024`です。
+    波形をstftする時のウィンドウサイズです。デフォルトでは`1024`です。  
 
 - stft_hop_length: int  
     波形をstftする時のホップ幅です。デフォルトは`stft_window_size/4`を使用します。
@@ -42,7 +44,7 @@ PynkTromboneEnvは人間のVocal Tractをシミュレーションし、強化学
 
 
 ### Reset
-環境をリセットします。ランダムに音声ファイルを選択し、ランダムな開始位置から切り出してターゲット音声とします。内部のVocal Tract モデルもリセットします。
+環境をリセットします。ランダムに音声ファイルを選択しターゲット音声とします。内部のVocal Tract モデルもリセットします。
 返り値として、初期観測を返します。
 
 ## Observation
@@ -119,7 +121,7 @@ stftによって生成されたスペクトログラムをメル周波数スペ�
 Note: 実際はラッパーではなく、継承したSubclassであることに注意してください。`__init__`を呼び出す際の引数がいくつか追加されています。  
 - mel_channels: int  
     Melスケールにする時のチャネル数です。デフォルト値は`80`です。
-- dtype: Any
+- dtype: Any  
     Mel filter bankの型です。デフォルト値は`np.float32`です。
 
 次のようにして使用します。  
@@ -157,5 +159,6 @@ wrapped = ActionByAcceleration(env, action_scaler=env.generate_chunk/env.sample_
 
 
 # References
-https://www.imaginary.org/program/pink-trombone
+- https://www.imaginary.org/program/pink-trombone  
+- [Voc: A vocal tract physical model implementation.](https://pbat.ch/res/voc/voc.pdf)
 
