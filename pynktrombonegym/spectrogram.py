@@ -74,7 +74,7 @@ def load_sound_file(file_path: Any, sample_rate: int) -> np.ndarray:
     if sound.channels != 1:
         sound = sound.set_channels(1)
 
-    max_value = 2 ** (8 * sound.sample_width)
+    max_value = 2 ** (8 * sound.sample_width - 1)
     wave = np.array(sound.get_array_of_samples()).reshape(-1) / max_value
     wave = wave.astype(np.float32)
     return wave
