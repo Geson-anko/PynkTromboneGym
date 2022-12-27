@@ -75,9 +75,17 @@ def load_sound_file(file_path: Any, sample_rate: int) -> np.ndarray:
         sound = sound.set_channels(1)
 
     max_value = 2 ** (8 * sound.sample_width - 1)
-    wave = np.array(sound.get_array_of_samples()).reshape(-1) / max_value
-    wave = wave.astype(np.float32)
-    return wave
+
+    wave_origin = np.array(sound.get_array_of_samples())
+    do_scaling = (np.abs(wave_origin) > 1.0).any()
+
+    if do_scaling:
+        wave_scaled = wave_origin.reshape(-1) / max_value
+    else:
+        wave_scaled = wave_origin.reshape(-1)
+    wave_scaled = wave_scaled.astype(np.float32)
+
+    return wave_scaled
 
 
 def pad_tail(wave: np.ndarray, target_length: int, padding_mode: padT = "constant", **kwds) -> np.ndarray:
