@@ -1,10 +1,12 @@
 import numpy as np
+import soundfile
 
 from pynktrombonegym import spectrogram as spct
 
 from .test_env import target_sound_files
 
 sound_file_1sec = "data/1sec.wav"
+sound_file_1sec_float32 = "data/1sec_float32.wav"
 
 
 def test_calc_rfft_channel_num():
@@ -51,6 +53,14 @@ def test_load_sound_file():
     assert len(w1sec_44100) == 44100
     w1sec_22050 = f(sound_file_1sec, 22050)
     assert len(w1sec_22050) == 22050
+
+    expected, sample_rate = soundfile.read(sound_file_1sec_float32)
+    w1sec_float32 = f(sound_file_1sec_float32, sample_rate)
+    # 各要素の誤差がatol以上の時AssertionError
+    np.testing.assert_allclose(
+        w1sec_float32,
+        expected,
+    )
 
 
 def test_pad_tail():
