@@ -75,7 +75,6 @@ def load_sound_file(file_path: Any, sample_rate: int) -> np.ndarray:
         sound = sound.set_channels(1)
 
     max_value = 2 ** (8 * sound.sample_width - 1)
-
     wave_origin = np.array(sound.get_array_of_samples())
     no_scaling = (np.abs(wave_origin) <= 1.0).any() and wave_origin.dtype is np.float32
 
