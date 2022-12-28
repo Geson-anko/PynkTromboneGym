@@ -7,6 +7,7 @@ from .test_env import target_sound_files
 
 sound_file_1sec = "data/1sec.wav"
 sound_file_1sec_float32 = "data/1sec_float32.wav"
+sound_file_1sec_ones = "data/1sec_ones.wav"
 
 
 def test_calc_rfft_channel_num():
@@ -57,10 +58,12 @@ def test_load_sound_file():
     expected, sample_rate = soundfile.read(sound_file_1sec_float32)
     w1sec_float32 = f(sound_file_1sec_float32, sample_rate)
     # 各要素の誤差がatol以上の時AssertionError
-    np.testing.assert_allclose(
-        w1sec_float32,
-        expected,
-    )
+    np.testing.assert_allclose(w1sec_float32, expected)
+
+    sound, sample_rate = soundfile.read(file=sound_file_1sec_ones, dtype=np.int16)
+    expected = sound / 2**15
+    w1sec_ones = f(sound_file_1sec_ones, sample_rate)
+    np.testing.assert_equal(w1sec_ones, expected)
 
 
 def test_pad_tail():

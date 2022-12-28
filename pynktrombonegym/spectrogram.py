@@ -77,12 +77,12 @@ def load_sound_file(file_path: Any, sample_rate: int) -> np.ndarray:
     max_value = 2 ** (8 * sound.sample_width - 1)
 
     wave_origin = np.array(sound.get_array_of_samples())
-    do_scaling = (np.abs(wave_origin) > 1.0).any()
+    no_scaling = (np.abs(wave_origin) <= 1.0).any() and wave_origin.dtype is np.float32
 
-    if do_scaling:
-        wave_scaled = wave_origin.reshape(-1) / max_value
-    else:
+    if no_scaling:
         wave_scaled = wave_origin.reshape(-1)
+    else:
+        wave_scaled = wave_origin.reshape(-1) / max_value
     wave_scaled = wave_scaled.astype(np.float32)
 
     return wave_scaled
