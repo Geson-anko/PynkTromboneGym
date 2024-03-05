@@ -8,7 +8,7 @@ import gym
 import numpy as np
 import soundfile
 
-from pynktrombonegym import env
+from pynktrombonegym import environment
 from pynktrombonegym.spaces import ActionSpaceNames as ASN
 from pynktrombonegym.spaces import ObservationSpaceNames as OSN
 
@@ -58,9 +58,9 @@ def generate_sound(environment: gym.Env, action_fn: Callable, file_name: str, ge
 
 
 def test_do_nothing():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
 
-    def action_fn(e: env.PynkTrombone) -> Mapping:
+    def action_fn(e: environment.PynkTrombone) -> Mapping:
 
         act = {
             ASN.PITCH_SHIFT: np.array([0.0]),
@@ -78,9 +78,9 @@ def test_do_nothing():
 
 
 def test_randomly():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
 
-    def action_fn(e: env.PynkTrombone) -> Mapping:
+    def action_fn(e: environment.PynkTrombone) -> Mapping:
         return e.action_space.sample()
 
     generate_sound(dflt, action_fn, f"{__name__}.test_randomly.wav", dflt.generate_chunk, dflt.sample_rate)

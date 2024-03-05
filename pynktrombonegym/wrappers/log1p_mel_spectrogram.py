@@ -4,7 +4,7 @@ import librosa
 import numpy as np
 from gym import spaces
 
-from ..env import PynkTrombone
+from ..environment import PynkTrombone
 from ..spaces import ObservationSpaceNames as OSN
 from ..spectrogram import calc_target_sound_spectrogram_length
 

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gym import spaces
 
-from pynktrombonegym import env
+from pynktrombonegym import environment
 from pynktrombonegym import spectrogram as spct
 from pynktrombonegym.renderer import Renderer
 from pynktrombonegym.spaces import ActionSpaceNames as ASN
@@ -31,7 +31,7 @@ def assert_dict_space_key(dict_space: Mapping, name_cls: object):
 def test__init__():
 
     ## test attributes.
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     assert default.target_sound_files == target_sound_files
     assert default.sample_rate == 44100
     assert default.default_frequency == 400
@@ -47,7 +47,7 @@ def test__init__():
     stft_window_size = 512
     stft_hop_length = 256
     rendering_figure_size = (1.0, 1.0)
-    mod = env.PynkTrombone(
+    mod = environment.PynkTrombone(
         target_sound_files,
         sample_rate,
         default_frequency,
@@ -80,7 +80,7 @@ def test__init__():
 
 
 def test_property_target_sound_wave():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     tgt_full = default.target_sound_wave_full
     tgt0 = tgt_full[: default.generate_chunk]
     assert np.all(default.target_sound_wave == tgt0)
@@ -91,13 +91,13 @@ def test_property_target_sound_wave():
 
 
 def test_property_generated_sound_wave():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     assert default.current_step == 0  # Assumption
     assert len(default.generated_sound_wave) == default.generate_chunk
 
 
 def test_set_target_sound_files():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
 
     file_paths = ["aaa", "bbb", "ccc"]
     assert default.target_sound_files == target_sound_files
@@ -112,7 +112,7 @@ def test_set_target_sound_files():
 
 
 def test_initialize_state():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     default.initialize_state()
 
     assert default.current_step == 0
@@ -129,7 +129,7 @@ def test_initialize_state():
 
 
 def test_define_action_space():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     acts = default.define_action_space()
 
     assert_space(acts[ASN.PITCH_SHIFT], spaces.Box(-1.0, 1.0))
@@ -143,7 +143,7 @@ def test_define_action_space():
 
 
 def test_define_observation_space():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     obs = default.define_observation_space()
 
     spct_shape = (
@@ -165,14 +165,14 @@ def test_define_observation_space():
 
 
 def test_define_reward_range():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     reward_range = default.define_reward_range()
 
     assert reward_range == (-float("inf"), 0.0)
 
 
 def test_load_sound_wave_randomly():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     wave = default.load_sound_wave_randomly()
 
     assert type(wave) is np.ndarray
@@ -180,7 +180,7 @@ def test_load_sound_wave_randomly():
 
 
 def test_get_target_sound_spectrogram():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     assert default.current_step == 0
     assert type(default.target_sound_wave_full) is np.ndarray
     assert len(default.target_sound_wave_full.shape) == 1
@@ -199,7 +199,7 @@ def test_get_target_sound_spectrogram():
 
 
 def test_get_generated_sound_spectrogram():
-    default = env.PynkTrombone(target_sound_files)
+    default = environment.PynkTrombone(target_sound_files)
     assert type(default._generated_sound_wave_2chunks) is np.ndarray
     w2c = default._generated_sound_wave_2chunks
     assert len(w2c) == 2 * default.generate_chunk
@@ -218,7 +218,7 @@ def test_get_generated_sound_spectrogram():
 
 
 def test_get_current_observation():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
     dflt.initialize_state()
 
     # Type checking
@@ -255,7 +255,7 @@ def test_get_current_observation():
 
 
 def test_reset():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
 
     obs = dflt.reset()
     assert isinstance(obs, OrderedDict)
@@ -263,7 +263,7 @@ def test_reset():
 
 
 def test_compute_reward():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
 
     dflt.reset()
     r = dflt.compute_reward()
@@ -277,7 +277,7 @@ def test_compute_reward():
 
 
 def test_property_done():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
 
     dflt.reset()
     assert not dflt.done
@@ -298,7 +298,7 @@ def test_property_done():
 
 
 def test_property_max_steps():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
 
     for _ in range(10):
         dflt.reset()
@@ -307,7 +307,7 @@ def test_property_max_steps():
 
 
 def test_step():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
 
     dflt.reset()
     act = dflt.action_space.sample()
@@ -346,7 +346,7 @@ def test_step():
 
 
 def test_render():
-    dflt = env.PynkTrombone(target_sound_files)
+    dflt = environment.PynkTrombone(target_sound_files)
     dflt.reset()
     assert dflt.render(None) is None
 
@@ -375,7 +375,7 @@ def test_render():
 
 
 def test_mean_squared_error():
-    f = env.mean_squared_error
+    f = environment.mean_squared_error
 
     o1 = np.zeros(10)
     t1 = np.ones(10)

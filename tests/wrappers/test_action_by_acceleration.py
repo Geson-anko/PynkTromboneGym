@@ -5,7 +5,7 @@ from collections import OrderedDict
 import numpy as np
 from gym import spaces
 
-from pynktrombonegym.env import PynkTrombone
+from pynktrombonegym.environment import PynkTrombone
 from pynktrombonegym.spaces import ActionSpaceNames as ASN
 from pynktrombonegym.wrappers.action_by_acceleration import ActionByAcceleration
 
