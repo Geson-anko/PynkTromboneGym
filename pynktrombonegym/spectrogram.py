@@ -4,7 +4,6 @@ from typing import Any, Literal
 
 import librosa
 import numpy as np
-from pydub import AudioSegment
 
 padT = Literal[
     "constant", "edge", "linear_ramp", "maximum", "mean", "median", "minimum", "reflect", "symmetric", "wrap", "empty"
@@ -67,17 +66,9 @@ def load_sound_file(file_path: Any, sample_rate: int) -> np.ndarray:
             Waveform of loaded sound.
     """
 
-    sound: AudioSegment = AudioSegment.from_file(file_path)
+    waveform, _ = librosa.load(file_path, sr=sample_rate, mono=True, dtype=np.float32)
 
-    if sound.frame_rate != sample_rate:
-        sound = sound.set_frame_rate(sample_rate)
-    if sound.channels != 1:
-        sound = sound.set_channels(1)
-
-    max_value = 2 ** (8 * sound.sample_width)
-    wave = np.array(sound.get_array_of_samples()).reshape(-1) / max_value
-    wave = wave.astype(np.float32)
-    return wave
+    return waveform
 
 
 def pad_tail(wave: np.ndarray, target_length: int, padding_mode: padT = "constant", **kwds) -> np.ndarray:
