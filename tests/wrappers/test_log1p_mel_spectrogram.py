@@ -12,7 +12,7 @@ from pynktrombonegym.spectrogram import (
 )
 from pynktrombonegym.wrappers import log1p_mel_spectrogram as l1pms
 
-from ..test_env import assert_space, target_sound_files
+from ..test_environment import assert_space, target_sound_files
 
 output_dir = "data/test_results"
 
