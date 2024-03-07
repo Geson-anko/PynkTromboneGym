@@ -89,7 +89,7 @@ class Renderer:
 
         figure.canvas.draw()
         w, h = figure.canvas.get_width_height(physical=True)
-        buf = np.frombuffer(figure.canvas.tostring_argb(), dtype=np.uint8)
+        buf = np.frombuffer(figure.canvas.tostring_argb(), dtype=np.uint8)  # type: ignore
         buf = buf.reshape(h, w, 4).copy()
         buf = np.roll(buf, 3, axis=-1)
         return buf
