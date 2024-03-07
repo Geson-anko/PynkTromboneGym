@@ -6,10 +6,7 @@ from gym import spaces
 
 from pynktrombonegym.environment import PynkTrombone
 from pynktrombonegym.spaces import ObservationSpaceNames as OSN
-from pynktrombonegym.spectrogram import (
-    calc_rfft_channel_num,
-    calc_target_sound_spectrogram_length,
-)
+from pynktrombonegym.spectrogram import calc_rfft_channel_num, calc_target_sound_spectrogram_length
 from pynktrombonegym.wrappers import log1p_mel_spectrogram as l1pms
 
 from ..test_environment import assert_space, target_sound_files
