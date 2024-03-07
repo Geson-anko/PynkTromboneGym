@@ -2,7 +2,7 @@ import numpy as np
 
 from pynktrombonegym import spectrogram as spct
 
-from .test_env import target_sound_files
+from .test_environment import target_sound_files
 
 sound_file_1sec = "data/1sec.wav"
 
